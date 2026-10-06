@@ -448,7 +448,8 @@ body[data-page]
         .industry-textile__product-media img,
         .industry-textile__project-media img,
         .project-details__product-media img
-    ) {
+    ),
+body[data-page="home"] main .home-article__media > img {
     transition:
         scale 320ms ease,
         transform 320ms ease;
@@ -460,7 +461,8 @@ body[data-page]
     body[data-page] main .about-expertise-card:hover .about-expertise-card__image,
     body[data-page] main .industry-textile__product-card:hover .industry-textile__product-media img,
     body[data-page] main .industry-textile__project-card:hover .industry-textile__project-media img,
-    body[data-page] main .project-details__product-card:hover .project-details__product-media img {
+    body[data-page] main .project-details__product-card:hover .project-details__product-media img,
+    body[data-page="home"] main .home-article__row:hover .home-article__media > img {
         scale: 1.06;
     }
 }
