@@ -1,0 +1,124 @@
+# انتشار V3 در Repository جدید
+
+نام پیشنهادی این بسته `saeideeshghi/marpich-sanat-v3` است. اگر نام دیگری انتخاب می‌کنی، همان نام را در دستور `github:setup` وارد کن. تنظیم مقصد و مسیر Pages از یک فایل، `github-pages.json`، خوانده می‌شود؛ در GitHub Actions نام واقعی مخزن مبنای مسیر سایت است.
+
+## ۱. ساخت مخزن خالی در GitHub
+
+1. وارد حساب `saeideeshghi` شو و صفحهٔ <https://github.com/new> را باز کن.
+2. Owner را `saeideeshghi` و Repository name را `marpich-sanat-v3` قرار بده.
+3. Visibility را **Public** انتخاب کن.
+4. گزینه‌های افزودن README، gitignore و License را فعال نکن. این فایل‌ها از پروژهٔ محلی ارسال می‌شوند.
+5. **Create repository** را بزن. اگر نام از قبل وجود دارد، یک نام آزاد انتخاب کن و آن را در مرحلهٔ تنظیم مقصد جایگزین کن.
+
+## ۲. آماده‌کردن پوشهٔ جدا روی ویندوز
+
+1. یک پوشهٔ جدید با نام `marpich-sanat-v3` روی Desktop بساز.
+2. محتویات ZIP را مستقیم در آن استخراج کن؛ `package.json` باید در ریشهٔ این پوشه باشد.
+3. پوشه‌های واقعی تصاویر و فونت‌ها را از پروژهٔ قبلی، با حفظ مسیرهایشان، کپی کن: `assets`، `fonts` و محتویات `public`. هنگام کپی `public`، فایل‌های موجود را Merge کن. `docs` را هم می‌توانی با همان مسیر قبلی کپی کنی.
+4. پوشهٔ `.git` پروژهٔ قبلی را کپی نکن. تاریخچه و Origin پروژهٔ جدید جدا ساخته می‌شوند.
+5. `node_modules`، `dist`، `.cache` و ZIPهای قبلی لازم نیست کپی شوند؛ وابستگی‌ها و خروجی Build دوباره ساخته می‌شوند. `.gitignore` این خروجی‌ها را از Commit کنار می‌گذارد، ولی تصاویر و فونت‌های منبع را حفظ می‌کند.
+
+Git و Node.js باید نصب باشند؛ حداقل Node این پروژه `22.12.0` است و Node 24 فعلی‌ات مناسب است. ترمینال VS Code را روی **PowerShell** باز کن:
+
+```powershell
+cd "$env:USERPROFILE\Desktop\marpich-sanat-v3"
+git --version
+node --version
+npm --version
+```
+
+## ۳. تنظیم مقصد؛ فقط یک بار
+
+```powershell
+npm run github:setup -- --repo saeideeshghi/marpich-sanat-v3
+git remote -v
+```
+
+این دستور Git محلی و branch `main` را در پوشهٔ جدید ایجاد می‌کند، Origin را تنظیم می‌کند و نام مقصد را در `github-pages.json` می‌نویسد. اگر پوشه از قبل به مخزن دیگری وصل باشد، متوقف می‌شود؛ پروژهٔ قبلی را تغییر نمی‌دهد. ساخت Repository در خود GitHub همچنان همان مرحلهٔ ۱ است.
+
+خروجی `git remote -v` باید برای Fetch و Push به این آدرس اشاره کند:
+
+```text
+https://github.com/saeideeshghi/marpich-sanat-v3.git
+```
+
+برای نام متفاوت، مثلاً `marpich-sanat-final`، فقط دستور تنظیم اولیه را این‌طور اجرا کن:
+
+```powershell
+npm run github:setup -- --repo saeideeshghi/marpich-sanat-final
+```
+
+## ۴. فعال‌کردن GitHub Pages
+
+در مخزن جدید وارد **Settings → Pages → Build and deployment → Source** شو و **GitHub Actions** را انتخاب کن. Workflow لازم داخل `.github/workflows/pages.yml` این بسته آماده است؛ نیازی به ساخت یک Workflow اضافی نیست.
+
+اگر تنظیم Pages قبل از اولین Push در دسترس نبود، ابتدا مرحلهٔ ۵ را انجام بده، سپس Source را تنظیم کن و Workflow را طبق مرحلهٔ ۶ دوباره اجرا کن.
+
+## ۵. ارسال اولیهٔ پروژه
+
+در همان پوشه اجرا کن:
+
+```powershell
+npm run publish:github
+```
+
+همین دستور به‌ترتیب این کارها را انجام می‌دهد:
+
+- تطبیق Origin با مقصد ثبت‌شده و بررسی ریشهٔ Git؛
+- پاکسازی فقط مسیرهای منسوخِ فهرست `scripts/legacy-files.json`؛
+- نصب با `npm ci`، بررسی سورس و Build مخصوص Pages؛
+- `git add`، ساخت Commit در صورت وجود تغییر و Push روی `main`؛
+- در دفعات بعد، `pull --rebase` و بررسی دوباره اگر کد تغییر کرده باشد.
+
+در مخزن خالی، اولین Push بدون Pull از branch ناموجود انجام می‌شود. انتشار معمولی tag جدید ایجاد نمی‌کند و tagهای قبلی را بازنویسی نمی‌کند. Force Push هم انجام نمی‌شود.
+
+اگر Git پنجرهٔ ورود باز کرد، با حساب صاحب مخزن وارد شو. واردکردن رمز حساب در ترمینال روش احراز هویت HTTPS نیست؛ از ورود Git Credential Manager یا یک Token معتبر استفاده کن. Token را در سورس یا فایل تنظیمات پروژه قرار نده.
+
+## ۶. دیدن نتیجه
+
+1. تب **Actions** مخزن جدید را باز کن.
+2. Workflow **Deploy Marpich Sanat to GitHub Pages** باید سبز شود. مرحلهٔ Build سورس را کنترل می‌کند و خروجی `dist` را برای Pages می‌فرستد.
+3. در **Settings → Pages** آدرس سایت نمایش داده می‌شود. برای نام پیشنهادی:
+
+```text
+https://saeideeshghi.github.io/marpich-sanat-v3/index.html
+```
+
+برای نام دیگر، بخش `marpich-sanat-v3` در URL برابر نام همان مخزن است. مسیر فایل‌های JS، CSS، تصاویر و فونت‌ها نیز با نام جدید ساخته می‌شود.
+
+اگر اولین Workflow قبل از فعال‌کردن Pages شکست خورد، پس از تنظیم Source به تب Actions برو، Workflow را انتخاب کن و **Run workflow → main → Run workflow** را بزن.
+
+## ۷. آپدیت‌های بعدی؛ فقط یک دستور
+
+فایل‌ها را در همین پوشهٔ جدید ویرایش و تنظیمات Customizer را ثبت کن، سپس:
+
+```powershell
+npm run publish:github
+```
+
+یا `PUSH-GITHUB.cmd` را دوبار کلیک کن. اسکریپت PowerShell و دستور npm از منطق یکسان و مقصد ثبت‌شده استفاده می‌کنند. هر Push موفق به `main`، Workflow را اجرا می‌کند و سایت این مخزن را با خروجی جدید به‌روزرسانی می‌کند. مخزن قبلی و سایت قبلی مقصد این دستور نیستند.
+
+Tag فقط برای انتشار نسخهٔ مشخص لازم است؛ برای آپدیت روزانه لازم نیست:
+
+```powershell
+npm run publish:github -- --release-tag v3.0.1
+```
+
+## رفع خطاهای رایج
+
+| خطا یا نشانه                                              | اقدام                                                                                                                                                                                         |
+| --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Origin must match` یا `already points to another origin` | پوشهٔ تازه بساز و ZIP را بدون `.git` قبلی استخراج کن. مقصد را با `github:setup` تنظیم کن.                                                                                                     |
+| `Repository not found`                                    | وجود مخزن، نام Owner/Repo و حسابی که با آن وارد Git شده‌ای را بررسی کن.                                                                                                                       |
+| `Author identity unknown`                                 | در همین پوشه `git config user.name "Saeid"` و `git config user.email "YOUR_GITHUB_EMAIL"` را اجرا کن؛ جای عبارت ایمیل، ایمیل واقعی حساب GitHub خودت را بگذار. سپس دستور انتشار را دوباره بزن. |
+| Rebase conflict                                           | `git status` را ببین، تضادهای اعلام‌شده را حل کن، فایل‌ها را با `git add` ثبت کن و `git rebase --continue` بزن. پس از اتمام دوباره منتشر کن.                                                  |
+| خطای Check یا Build                                       | همان خطای بالاتر را رفع کن. اسکریپت بعد از شکست بررسی‌ها Push نمی‌کند.                                                                                                                        |
+| خطای Configure/Deploy Pages                               | Source باید GitHub Actions باشد؛ سپس Workflow را دوباره اجرا کن.                                                                                                                              |
+| سایت بدون تصویر                                           | تصاویر را با مسیرهای قبلی در `assets` یا `public/assets` کپی کن و دوباره منتشر کن. `npm run check:assets` مسیرهای مفقود را نشان می‌دهد.                                                       |
+| 404 بلافاصله پس از Push                                   | نتیجهٔ Actions و مرحلهٔ Deploy را بررسی کن؛ URL نهایی را از Settings → Pages بردار.                                                                                                           |
+
+## منابع
+
+- [ساخت Repository در GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository)
+- [تنظیم GitHub Actions برای Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
+- [مسیر Base و انتشار Vite روی Pages](https://vite.dev/guide/static-deploy.html#github-pages)

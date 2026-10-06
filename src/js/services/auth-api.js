@@ -1,0 +1,73 @@
+/* API boundary: UI never stores passwords, OTPs, or session tokens in browser storage.
+ * Preview is development-only. Production needs VITE_AUTH_MODE=api and server endpoints.
+ * See README.md for the request/response contract.
+ */
+export const isAuthPreview = import.meta.env.DEV && import.meta.env.VITE_AUTH_MODE !== "api";
+const apiEnabled = import.meta.env.VITE_AUTH_MODE === "api";
+const baseURL = (import.meta.env.VITE_AUTH_API_BASE || "/api/auth").replace(/\/$/, "");
+
+export class AuthError extends Error {
+    constructor(message, retryAfter = 0) {
+        super(message);
+        this.name = "AuthError";
+        this.retryAfter = retryAfter;
+    }
+}
+
+function previewResponse(action, payload) {
+    if (["request-code", "register"].includes(action)) {
+        return { challengeId: "preview-only", retryAfter: 60 };
+    }
+    if (action === "verify-code") {
+        if (payload.code !== "123456") throw new AuthError("کد واردشده صحیح نیست. کد پیش‌نمایش ۱۲۳۴۵۶ است.");
+        return { preview: true, resetToken: payload.purpose === "reset" ? "preview-only" : undefined };
+    }
+    return { preview: true };
+}
+
+async function request(action, payload, signal) {
+    if (isAuthPreview) return previewResponse(action, payload);
+    if (!apiEnabled) throw new AuthError("این سرویس هنوز فعال نشده است؛ لطفاً از راه‌های تماس با ما استفاده کنید.");
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+    let response;
+    try {
+        response = await fetch(`${baseURL}/${action}`, {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+                "Content-Type": "application/json",
+                ...(csrfToken ? { "X-CSRF-TOKEN": csrfToken } : {}),
+            },
+            body: JSON.stringify(payload),
+            signal,
+        });
+    } catch (error) {
+        if (error.name === "AbortError") throw error;
+        throw new AuthError("ارتباط برقرار نشد؛ اتصال اینترنت را بررسی و دوباره تلاش کنید.");
+    }
+    const data = await response.json().catch(() => null);
+    if (!response.ok || data?.ok === false) {
+        const retryAfter = Math.max(0, Number(response.headers.get("Retry-After")) || 60);
+        if (response.status === 429)
+            throw new AuthError("تعداد تلاش‌ها زیاد است؛ کمی بعد دوباره امتحان کنید.", retryAfter);
+        if (response.status >= 500) throw new AuthError("سرویس موقتاً در دسترس نیست؛ دوباره تلاش کنید.");
+        throw new AuthError(data?.message || "اطلاعات واردشده صحیح نیست یا درخواست منقضی شده است.");
+    }
+    if (!data || data.ok !== true) throw new AuthError("پاسخ سرویس قابل تأیید نیست؛ دوباره تلاش کنید.");
+    if (["request-code", "register"].includes(action) && !data.challengeId) {
+        throw new AuthError("کد تأیید صادر نشد؛ دوباره تلاش کنید.");
+    }
+    if (action === "verify-code" && payload.purpose === "reset" && !data.resetToken) {
+        throw new AuthError("تأیید بازیابی انجام نشد؛ دوباره کد دریافت کنید.");
+    }
+    return data;
+}
+
+export const authAPI = {
+    login: (payload, signal) => request("login", payload, signal),
+    register: (payload, signal) => request("register", payload, signal),
+    requestCode: (payload, signal) => request("request-code", payload, signal),
+    verifyCode: (payload, signal) => request("verify-code", payload, signal),
+    resetPassword: (payload, signal) => request("reset-password", payload, signal),
+};

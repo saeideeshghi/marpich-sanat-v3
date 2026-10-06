@@ -1,0 +1,163 @@
+/* Shared content flow and interaction rules. Component typography and small-screen
+ * geometry live in responsive.css; footer geometry lives in components/footer.css. */
+body {
+    font-size: 16px;
+    line-height: 1.8;
+}
+body[data-page] :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea) {
+    font-size: 16px;
+}
+main :is(p, h1, h2, h3, h4, li, dd) {
+    overflow-wrap: break-word;
+}
+main :is(button, a):focus-visible {
+    outline: 2px solid #2f75ab;
+    outline-offset: 3px;
+}
+
+/* Specification chips may wrap instead of squeezing full words into three tiny cells. */
+body[data-page]
+    :is(
+        .product-card__specs,
+        .industry-textile__product-specs,
+        .project-details__product-specs,
+        .industry-textile__product-tags,
+        .industry-textile__project-meta
+    ) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+body[data-page]
+    :is(
+        .product-card__specs,
+        .industry-textile__product-specs,
+        .project-details__product-specs,
+        .industry-textile__product-tags,
+        .industry-textile__project-meta
+    )
+    > span {
+    flex: 1 1 76px;
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.7;
+}
+.product-card__category {
+    max-width: calc(100% - 24px);
+    white-space: normal;
+    height: auto;
+}
+.product-card__link {
+    min-height: 36px;
+}
+.product-card__body {
+    min-width: 0;
+}
+
+.home-products-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    align-items: stretch;
+    gap: 10px;
+    padding-top: 14px;
+}
+.home-products-actions a {
+    min-height: 44px;
+    /* justify-content: space-between; */
+    white-space: normal;
+    line-height: 1.7;
+}
+.home-products-actions a:last-child {
+    justify-self: end;
+}
+.home-products-actions span {
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+.projects-page__testimonials-subtitle {
+    min-width: 0;
+    max-width: 100%;
+    flex-wrap: wrap;
+}
+.projects-page__testimonials-subtitle p {
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+}
+
+/* Contact cards grow naturally with legible copy and touch-sized actions. */
+.branch-card__detail-row dd {
+    overflow-wrap: anywhere;
+}
+.branch-card a {
+    min-height: 44px;
+    height: auto;
+    padding-block: 8px;
+    white-space: normal;
+    line-height: 1.7;
+}
+.contact-control {
+    min-height: 44px;
+}
+body[data-page="home"] .home-product-category {
+    width: auto;
+    min-width: 72px;
+    max-width: calc(100% - 16px);
+    height: auto;
+    min-height: 26px;
+    padding: 4px 8px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+    border-radius: 0.25rem;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.mobile-menu [data-nav][aria-current],
+.mobile-menu [data-nav][aria-current] span {
+    color: #79b6ed;
+}
+body[data-page] :is(.about-card-link__text, .about-gallery__link-text) {
+    border-bottom: 0;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+/* Apply link decoration to the label, never to a sibling arrow/icon. */
+body[data-page] :is(a, button).site-text-link {
+    text-decoration: none;
+}
+body[data-page] :is(a, button).site-text-link > .site-text-link__label {
+    border-bottom: 0;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+}
+
+body[data-page] button.site-text-link {
+    border-bottom: 0;
+}
+
+/* Home card actions reveal the label underline on hover or keyboard focus. */
+body[data-page="home"] main .site-text-link > .site-text-link__label {
+    text-decoration: none;
+}
+body[data-page="home"] main .site-text-link:is(:hover, :focus-visible) > .site-text-link__label {
+    text-decoration: underline;
+}
+body[data-page="home"] main .site-text-link--plain > .site-text-link__label {
+    text-decoration: none !important;
+}
+
+/* The copy and form share one centered column while the desktop layout is hidden. */
+@media (max-width: 1179px) {
+    body[data-page] [data-consultation] .site-consultation__copy :is(h2, p) {
+        text-align: center;
+        margin-inline: auto;
+    }
+    body[data-page] [data-consultation] .site-consultation__mobile-form {
+        margin-inline: auto;
+    }
+}

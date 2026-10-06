@@ -1,0 +1,15 @@
+/* Shared styles only. Each page imports its own stylesheet in its JS entry. */
+@import "tailwindcss";
+@import "@fortawesome/fontawesome-free/css/all.min.css";
+@import "./tokens.css";
+@import "./fonts.css";
+@import "./base.css";
+@import "./components/site.css";
+@import "./components/fixed-header.css";
+@import "./components/footer.css";
+@import "./components/pattern.css";
+@import "./components/auth.css";
+@import "./components/language.css";
+
+/* Include utilities used by build-time HTML partials. */
+@source "../components";

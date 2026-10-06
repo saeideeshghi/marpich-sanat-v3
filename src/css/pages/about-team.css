@@ -1,0 +1,40 @@
+/* The outer container controls placement; the frame controls cropping.
+ * Keeping the image inside a definite frame makes per-device heights reliable. */
+.about-team-wrap {
+    width: min(calc(100% - 64px), 1760px);
+    margin-inline: auto;
+    z-index: 2;
+}
+.about-team-media {
+    position: relative;
+    margin: 0;
+    aspect-ratio: 2.12 / 1;
+    overflow: hidden;
+    border-radius: 16px;
+    background: transparent;
+}
+.about-team-media__image {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: none;
+    object-fit: contain;
+    object-position: 50% 50%;
+}
+@media (min-width: 640px) and (max-width: 1179px) {
+    .about-team-wrap {
+        width: calc(100% - 48px);
+    }
+}
+@media (max-width: 639px) {
+    .about-team-wrap {
+        width: calc(100% - 24px);
+    }
+    .about-team-media {
+        aspect-ratio: 16 / 9;
+        border-radius: 10px;
+    }
+}
