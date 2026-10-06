@@ -69,7 +69,7 @@
         "key": "card-media-tag"
       },
       "properties": {
-        "text-align": "right",
+        "text-align": "center",
         "direction": "rtl"
       }
     },
@@ -81,7 +81,7 @@
         "key": "card-meta-tag"
       },
       "properties": {
-        "text-align": "right",
+        "text-align": "center",
         "direction": "rtl",
         "padding-top": 8
       }
@@ -94,7 +94,7 @@
         "key": "card-status-tag"
       },
       "properties": {
-        "text-align": "right",
+        "text-align": "center",
         "direction": "rtl"
       }
     },

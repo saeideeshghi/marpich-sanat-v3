@@ -6,6 +6,8 @@
 
 سورس این پروژه برای ترکیب کامپوننت‌ها، Tailwind و واردکردن CSS به Build با Vite نیاز دارد. انتخاب `Deploy from a branch → main → / (root)` سورس پردازش‌نشده را منتشر می‌کند؛ برای این پروژه Source باید **GitHub Actions** باشد.
 
+اگر در Actions هم `Deploy Marpich Sanat to GitHub Pages` و هم `pages build and deployment` با مرحلهٔ `Build with Jekyll` اجرا می‌شوند، انتشار از Branch هنوز فعال است. این دو می‌توانند یکدیگر را جایگزین کنند؛ سبزبودن Workflow پروژه به‌تنهایی کافی نیست. ابتدا Source را روی **GitHub Actions** قرار بده، سپس Workflow پروژه را از **Run workflow → main → Run workflow** اجرا کن یا نسخهٔ تازه را Push کن. در این حالت نیازی به ساخت Workflow تازه نیست.
+
 1. ZIP اصلاح‌شده را کامل استخراج کن و فایل‌هایش را در ریشهٔ همان پوشهٔ متصل به مخزن جدید، کنار `package.json`، جایگزین کن. پوشهٔ `.github` و فایل `.github/workflows/pages.yml` هم باید کپی شوند. تصاویر و فونت‌های موجود را با همان مسیرها حفظ کن.
 2. در GitHub وارد **Settings → Pages → Build and deployment → Source** شو و **GitHub Actions** را انتخاب کن.
 3. در ترمینال همان پوشه `npm run publish:github` را اجرا کن.

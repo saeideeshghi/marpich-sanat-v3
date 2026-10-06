@@ -82,7 +82,7 @@ body[data-page] .site-card__cta {
 }
 }
 body[data-page] .site-card__media-tag {
-    text-align: right !important;
+    text-align: center !important;
     direction: rtl !important;
 }
 @media (max-width: 639px) {
@@ -91,7 +91,7 @@ body[data-page] .site-card__media-tag {
 }
 }
 body[data-page] .site-card__meta-tag {
-    text-align: right !important;
+    text-align: center !important;
     direction: rtl !important;
     padding-top: 8px !important;
 }
@@ -101,7 +101,7 @@ body[data-page] .site-card__meta-tag {
 }
 }
 body[data-page] .site-card__status-tag {
-    text-align: right !important;
+    text-align: center !important;
     direction: rtl !important;
 }
 @media (max-width: 639px) {

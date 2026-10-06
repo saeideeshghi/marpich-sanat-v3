@@ -23,7 +23,11 @@ export function defaultConfig() {
         ...TAG_TARGETS,
         "footer-title",
     ])
-        add(key, { "text-align": "right", direction: "rtl", ...(key === "card-meta-tag" ? { "padding-top": 8 } : {}) });
+        add(key, {
+            "text-align": TAG_TARGETS.includes(key) ? "center" : "right",
+            direction: "rtl",
+            ...(key === "card-meta-tag" ? { "padding-top": 8 } : {}),
+        });
     for (const key of ["body-text", "hero-description", "card-description"])
         add(key, {
             "text-align": "justify",

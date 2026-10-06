@@ -1,12 +1,11 @@
-/* Text badges have dedicated roles. Alignment must work for block, flex and
- * grid badges, including wrapped text; card titles, copy and icon-only PDF
- * markers keep their own layout. Sizes, colours and padding remain page-owned. */
+/* Center text inside dedicated badge roles, including wrapped lines and
+ * block/flex/grid layouts. Sizes, colours, padding and positions stay page-owned. */
 body[data-page] main :is(.site-card__media-tag, .site-card__meta-tag, .site-card__status-tag) {
     direction: rtl;
-    text-align: right;
-    text-align-last: right;
-    justify-content: start;
-    justify-items: start;
+    text-align: center;
+    text-align-last: center;
+    justify-content: center;
+    justify-items: center;
 }
 
 body[data-page] main :is(.site-card__media-tag, .site-card__meta-tag, .site-card__status-tag) :where(span, small) {
