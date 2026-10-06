@@ -357,11 +357,6 @@ body[data-page="industry-textile"] .industry-textile__products-grid .industry-te
     object-fit: cover;
     object-position: center;
 }
-body[data-page="industry-textile"] .industry-textile__products-grid :is(.site-card__media-tag, .site-card__meta-tag) {
-    text-align: center !important;
-    text-align-last: center !important;
-    justify-content: center;
-}
 body[data-page="industry-textile"] .industry-textile__products-grid .site-card__meta-tag {
     padding-block: 0.32rem !important;
 }

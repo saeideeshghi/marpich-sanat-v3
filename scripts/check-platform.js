@@ -6,6 +6,8 @@ import path from "node:path";
 import { syncBuiltinESMExports } from "node:module";
 import { spawnSync } from "node:child_process";
 import { collectDesignTokens, designTokenReference } from "../build/design-tokens.js";
+import { templateCustomizer } from "../build/customizer.js";
+import { pages } from "../build/pages.js";
 import { tokenContract } from "../build/token-contract.js";
 import { publishCommand } from "./publish-github.js";
 
@@ -13,8 +15,12 @@ const root = path.resolve(import.meta.dirname, "..");
 const baseline = collectDesignTokens(root);
 const contracts = tokenContract(baseline);
 const native = {
+    existsSync: fs.existsSync,
+    mkdirSync: fs.mkdirSync,
     readFileSync: fs.readFileSync,
     readdirSync: fs.readdirSync,
+    renameSync: fs.renameSync,
+    writeFileSync: fs.writeFileSync,
     resolve: path.resolve,
     relative: path.relative,
 };
@@ -81,6 +87,92 @@ for (const platform of ["posix", "win32"]) {
     }
 }
 
+// Vite supplies forward-slash hook filenames on Windows, while node:path
+// resolves filesystem paths with backslashes. Exercise that combination with
+// the real customizer hooks and saved settings, without writing project files.
+for (const platform of ["posix", "win32"]) {
+    const virtualRoot =
+        platform === "win32"
+            ? "C:\\Users\\Saeid_Eshghi\\Desktop\\پروژه صنعت (2)\\marpich-sanat-v3"
+            : "/fixture/پروژه صنعت (2)/marpich-sanat-v3";
+    const localPath = (file) =>
+        typeof file === "string" && file.startsWith(virtualRoot)
+            ? root + file.slice(virtualRoot.length).replaceAll("\\", "/")
+            : file;
+    try {
+        path.resolve = path[platform].resolve;
+        fs.existsSync = (file) => native.existsSync(localPath(file));
+        fs.readFileSync = (file, ...args) => {
+            const value = native.readFileSync(localPath(file), ...args);
+            return typeof value === "string" ? value.replace(/\r\n?/g, "\n") : value;
+        };
+        for (const operation of ["mkdirSync", "renameSync", "writeFileSync"])
+            fs[operation] = () => assert.fail(`Platform fixture must not write files: ${operation}`);
+        syncBuiltinESMExports();
+
+        const html = "<!doctype html><html><head></head><body></body></html>";
+        const formats = [
+            ["native", (file) => file],
+            ["Vite", (file) => file.replaceAll("\\", "/")],
+        ];
+        for (const base of ["/", "/marpich-sanat-v3/"]) {
+            const plugin = templateCustomizer(virtualRoot, base);
+            let styleHref;
+            for (const [format, filename] of formats) {
+                for (const page of pages) {
+                    const tags = plugin.transformIndexHtml.handler(html, {
+                        filename: filename(path.resolve(virtualRoot, page.file)),
+                    });
+                    assert(Array.isArray(tags), `${platform}/${format}/${page.file}: missing customizer CSS`);
+                    const links = tags.filter((tag) => tag.attrs?.id === "mps-template-overrides");
+                    assert.equal(links.length, 1, "Every page must receive exactly one saved stylesheet");
+                    const link = links[0];
+                    assert.equal(link.tag, "link");
+                    assert.equal(link.attrs.rel, "stylesheet");
+                    assert.equal(link.injectTo, "head");
+                    const prefix = `${base}assets/customizer/template-overrides.css?v=`;
+                    assert(link.attrs.href.startsWith(prefix), "Saved CSS must use the configured Pages base");
+                    assert.match(link.attrs.href.slice(prefix.length), /^[a-f0-9]{12}$/);
+                    styleHref ??= link.attrs.href;
+                    assert.equal(link.attrs.href, styleHref, "Path separators must not change the CSS version");
+
+                    const sources = tags.filter((tag) => tag.attrs?.id === "mps-image-sources");
+                    assert.equal(sources.length, page.file === "about.html" ? 1 : 0);
+                    if (sources.length) {
+                        assert.equal(sources[0].attrs.type, "application/json");
+                        assert.equal(sources[0].injectTo, "head");
+                        assert.doesNotThrow(() => JSON.parse(sources[0].children));
+                    }
+                }
+                for (const file of ["tools/customizer.html", "tools/design-tokens.html", "tools/index.html"])
+                    assert.equal(
+                        plugin.transformIndexHtml.handler(html, {
+                            filename: filename(path.resolve(virtualRoot, file)),
+                        }),
+                        html,
+                        "Website styles must not leak into tools or unregistered pages",
+                    );
+                for (const file of ["src/data/patterns/site-pattern.json", "src/data/patterns/footer-pattern.json"])
+                    assert.deepEqual(
+                        plugin.handleHotUpdate({ file: filename(path.resolve(virtualRoot, file)) }),
+                        [],
+                        `${platform}/${format}: pattern saves must preserve editor state`,
+                    );
+                assert.equal(
+                    plugin.handleHotUpdate({ file: filename(path.resolve(virtualRoot, "src/css/main.css")) }),
+                    undefined,
+                    "Other files must retain normal Vite HMR",
+                );
+            }
+        }
+    } finally {
+        for (const operation of ["existsSync", "mkdirSync", "readFileSync", "renameSync", "writeFileSync"])
+            fs[operation] = native[operation];
+        path.resolve = native.resolve;
+        syncBuiltinESMExports();
+    }
+}
+
 const node = "C:\\Program Files\\nodejs\\node.exe";
 const npm = "C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js";
 assert.deepEqual(
@@ -110,5 +202,5 @@ if (process.env.npm_execpath && fs.existsSync(process.env.npm_execpath)) {
     assert(!result.stderr.includes("DEP0190"));
 }
 console.log(
-    "PASS: Windows/POSIX catalog parity, LF/CRLF, saved CSS isolation, deterministic owners/HMR and npm invocation without shell:true.",
+    "PASS: Windows/POSIX catalog parity, LF/CRLF, saved CSS isolation, Vite customizer paths/Pages links, deterministic owners/HMR and npm invocation without shell:true.",
 );

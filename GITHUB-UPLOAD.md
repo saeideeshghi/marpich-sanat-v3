@@ -2,6 +2,24 @@
 
 نام پیشنهادی این بسته `saeideeshghi/marpich-sanat-v3` است. اگر نام دیگری انتخاب می‌کنی، همان نام را در دستور `github:setup` وارد کن. تنظیم مقصد و مسیر Pages از یک فایل، `github-pages.json`، خوانده می‌شود؛ در GitHub Actions نام واقعی مخزن مبنای مسیر سایت است.
 
+## رفع نمایش سایت بدون CSS در مخزن فعلی
+
+سورس این پروژه برای ترکیب کامپوننت‌ها، Tailwind و واردکردن CSS به Build با Vite نیاز دارد. انتخاب `Deploy from a branch → main → / (root)` سورس پردازش‌نشده را منتشر می‌کند؛ برای این پروژه Source باید **GitHub Actions** باشد.
+
+1. ZIP اصلاح‌شده را کامل استخراج کن و فایل‌هایش را در ریشهٔ همان پوشهٔ متصل به مخزن جدید، کنار `package.json`، جایگزین کن. پوشهٔ `.github` و فایل `.github/workflows/pages.yml` هم باید کپی شوند. تصاویر و فونت‌های موجود را با همان مسیرها حفظ کن.
+2. در GitHub وارد **Settings → Pages → Build and deployment → Source** شو و **GitHub Actions** را انتخاب کن.
+3. در ترمینال همان پوشه `npm run publish:github` را اجرا کن.
+4. در تب **Actions** منتظر موفق‌شدن Build و Deploy باش؛ URL نهایی را از **Settings → Pages** باز کن. سپس `Ctrl+F5` بزن.
+
+Workflow این بسته خروجی `dist` را با Base نام واقعی مخزن منتشر می‌کند. `build:pages` لینک‌های CSS تمام صفحه‌ها و دو ابزار، استایل‌های چانک‌های مشترک و فایل‌های JS را بررسی می‌کند؛ اگر فایل یا لینک لازم مفقود باشد، انتشار متوقف می‌شود. برای اجرای محلی همین خروجی:
+
+```powershell
+npm run build:pages
+npm run preview:pages
+```
+
+URL دارای نام مخزن را که Vite چاپ می‌کند باز کن؛ مثلاً `http://localhost:4173/marpich-sanat-v3/index.html`.
+
 ## ۱. ساخت مخزن خالی در GitHub
 
 1. وارد حساب `saeideeshghi` شو و صفحهٔ <https://github.com/new> را باز کن.
@@ -106,16 +124,18 @@ npm run publish:github -- --release-tag v3.0.1
 
 ## رفع خطاهای رایج
 
-| خطا یا نشانه                                              | اقدام                                                                                                                                                                                         |
-| --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Origin must match` یا `already points to another origin` | پوشهٔ تازه بساز و ZIP را بدون `.git` قبلی استخراج کن. مقصد را با `github:setup` تنظیم کن.                                                                                                     |
-| `Repository not found`                                    | وجود مخزن، نام Owner/Repo و حسابی که با آن وارد Git شده‌ای را بررسی کن.                                                                                                                       |
-| `Author identity unknown`                                 | در همین پوشه `git config user.name "Saeid"` و `git config user.email "YOUR_GITHUB_EMAIL"` را اجرا کن؛ جای عبارت ایمیل، ایمیل واقعی حساب GitHub خودت را بگذار. سپس دستور انتشار را دوباره بزن. |
-| Rebase conflict                                           | `git status` را ببین، تضادهای اعلام‌شده را حل کن، فایل‌ها را با `git add` ثبت کن و `git rebase --continue` بزن. پس از اتمام دوباره منتشر کن.                                                  |
-| خطای Check یا Build                                       | همان خطای بالاتر را رفع کن. اسکریپت بعد از شکست بررسی‌ها Push نمی‌کند.                                                                                                                        |
-| خطای Configure/Deploy Pages                               | Source باید GitHub Actions باشد؛ سپس Workflow را دوباره اجرا کن.                                                                                                                              |
-| سایت بدون تصویر                                           | تصاویر را با مسیرهای قبلی در `assets` یا `public/assets` کپی کن و دوباره منتشر کن. `npm run check:assets` مسیرهای مفقود را نشان می‌دهد.                                                       |
-| 404 بلافاصله پس از Push                                   | نتیجهٔ Actions و مرحلهٔ Deploy را بررسی کن؛ URL نهایی را از Settings → Pages بردار.                                                                                                           |
+| خطا یا نشانه                                              | اقدام                                                                                                                                                                                                                      |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Origin must match` یا `already points to another origin` | پوشهٔ تازه بساز و ZIP را بدون `.git` قبلی استخراج کن. مقصد را با `github:setup` تنظیم کن.                                                                                                                                  |
+| `Repository not found`                                    | وجود مخزن، نام Owner/Repo و حسابی که با آن وارد Git شده‌ای را بررسی کن.                                                                                                                                                    |
+| `Author identity unknown`                                 | در همین پوشه `git config user.name "Saeid"` و `git config user.email "YOUR_GITHUB_EMAIL"` را اجرا کن؛ جای عبارت ایمیل، ایمیل واقعی حساب GitHub خودت را بگذار. سپس دستور انتشار را دوباره بزن.                              |
+| Rebase conflict                                           | `git status` را ببین، تضادهای اعلام‌شده را حل کن، فایل‌ها را با `git add` ثبت کن و `git rebase --continue` بزن. پس از اتمام دوباره منتشر کن.                                                                               |
+| خطای Check یا Build                                       | همان خطای بالاتر را رفع کن. اسکریپت بعد از شکست بررسی‌ها Push نمی‌کند.                                                                                                                                                     |
+| `missing approved customizer CSS` در ویندوز               | فایل‌های `build/customizer.js` و `scripts/check-platform.js` نسخهٔ اصلاح‌شده را در همین پروژه جایگزین کن و دوباره `npm run publish:github` بزن. این خطا از اختلاف جداکنندهٔ مسیر Windows و Vite بود؛ بررسی CSS را حذف نکن. |
+| خطای Configure/Deploy Pages                               | Source باید GitHub Actions باشد؛ سپس Workflow را دوباره اجرا کن.                                                                                                                                                           |
+| سایت بدون CSS یا بدون هدر و منو                           | فایل `.github/workflows/pages.yml` را از ZIP کامل کپی کن، Source را GitHub Actions قرار بده و دوباره منتشر کن. خروجی `dist` باید Deploy شود.                                                                               |
+| سایت بدون تصویر                                           | تصاویر را با مسیرهای قبلی در `assets` یا `public/assets` کپی کن و دوباره منتشر کن. `npm run check:assets` مسیرهای مفقود را نشان می‌دهد.                                                                                    |
+| 404 بلافاصله پس از Push                                   | نتیجهٔ Actions و مرحلهٔ Deploy را بررسی کن؛ URL نهایی را از Settings → Pages بردار.                                                                                                                                        |
 
 ## منابع
 

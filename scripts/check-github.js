@@ -1,12 +1,18 @@
 // New-repository setup/publication uses local fixtures only, never a GitHub push.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { githubPagesBase, githubPagesUrl, parseGithubRepository, repositoryFromOrigin } from "../build/github-pages.js";
 import { setupGithub } from "./setup-github.js";
 import { publishGithub } from "./publish-github.js";
+
+const root = resolve(import.meta.dirname, "..");
+assert(
+    existsSync(join(root, ".github/workflows/pages.yml")),
+    "Missing .github/workflows/pages.yml. Extract the complete ZIP beside package.json before publishing.",
+);
 
 for (const name of ["marpich-sanat-v3", "another-site", "site_with.dots"])
     assert.equal(githubPagesBase(`saeideeshghi/${name}`), `/${name}/`);

@@ -81,7 +81,7 @@
         "key": "card-meta-tag"
       },
       "properties": {
-        "text-align": "center",
+        "text-align": "right",
         "direction": "rtl",
         "padding-top": 8
       }

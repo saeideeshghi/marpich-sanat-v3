@@ -6,6 +6,9 @@ import { imageSourceRules } from "../src/js/customizer/image-source.js";
 import { pages } from "./pages.js";
 import { loadDesignConfig, settingsText } from "./design-config.js";
 
+// Filesystem paths stay native; Vite hook comparisons use forward slashes.
+const normalizePath = (file) => file?.replaceAll("\\", "/");
+
 export function templateCustomizer(root, base) {
     const settingsPath = resolve(root, "src/data/customizer/settings.json");
     const cssPath = resolve(root, "src/css/template-overrides.css");
@@ -13,6 +16,9 @@ export function templateCustomizer(root, base) {
         header: resolve(root, "src/data/patterns/site-pattern.json"),
         footer: resolve(root, "src/data/patterns/footer-pattern.json"),
     };
+    const pagePaths = new Set(pages.map((page) => normalizePath(resolve(root, page.file))));
+    const aboutPath = normalizePath(resolve(root, "about.html"));
+    const patternFiles = new Set(Object.values(patternPaths).map(normalizePath));
     const token = randomBytes(24).toString("hex");
     const load = () => loadDesignConfig(root);
     const revision = (config) => createHash("sha256").update(JSON.stringify(config)).digest("hex");
@@ -38,16 +44,17 @@ export function templateCustomizer(root, base) {
         handleHotUpdate(context) {
             // Saving the shared artwork updates the live player without losing
             // the editor's selection/history to Vite's JSON module reload.
-            if (Object.values(patternPaths).includes(context.file)) return [];
+            if (patternFiles.has(normalizePath(context.file))) return [];
         },
         transformIndexHtml: {
             order: "post",
             handler(html, context) {
-                if (!pages.some((page) => resolve(root, page.file) === context.filename)) return html;
+                const filename = normalizePath(context.filename);
+                if (!pagePaths.has(filename)) return html;
                 const config = load();
                 const styleVersion = createHash("sha256").update(compileCSS(config)).digest("hex").slice(0, 12);
                 return [
-                    ...(context.filename === resolve(root, "about.html")
+                    ...(filename === aboutPath
                         ? [
                               {
                                   tag: "script",

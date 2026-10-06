@@ -243,15 +243,38 @@ body[data-page] .site-header .site-navigation .site-nav-link * {
     line-height: 1;
 }
 
+.mobile-menu__actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mobile-menu__search,
 .mobile-menu__close {
     display: grid;
     width: 46px;
     height: 46px;
+    flex-shrink: 0;
     place-items: center;
     border: 0;
     background: transparent;
     color: #0f172b;
     font-size: 28px;
+}
+
+.mobile-menu__search > svg {
+    width: 22px;
+    height: 22px;
+}
+
+.mobile-menu__search:hover {
+    color: #4fa9ef;
+}
+
+.mobile-menu__search:focus-visible {
+    outline: 2px solid #4fa9ef;
+    outline-offset: 2px;
+    border-radius: 4px;
 }
 
 .mobile-menu__nav {

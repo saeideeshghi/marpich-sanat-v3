@@ -8,24 +8,6 @@
     --header-fixed-backdrop-blur: 8px;
     --header-fixed-shadow: 0 6px 24px #0f172b29;
 }
-.site-header__mobile-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.site-header__mobile-search {
-    display: inline-flex;
-    width: 42px;
-    height: 42px;
-    flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-}
-.site-header__mobile-search > svg {
-    width: 20px;
-    height: 20px;
-}
 body[data-page] .site-header[data-header-fixed="true"] {
     position: fixed;
     top: var(--header-fixed-top);
