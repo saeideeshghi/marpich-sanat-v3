@@ -874,3 +874,120 @@ body[data-page="contact"] .branch-card__address {
     font-size: var(--card-description-font-size);
     line-height: 1.85;
 }
+
+/* Additions from the supplied mobile reference. Keep tablet/desktop geometry
+ * and all existing branch/form/benefit rules unchanged. */
+body[data-page="contact"] .contact-branches > .branch-card--factory,
+body[data-page="contact"] .contact-cooperation {
+    display: none !important;
+}
+
+@media (max-width: 639px) {
+    body[data-page="contact"] .contact-branches > .branch-card--factory {
+        display: grid !important;
+    }
+
+    body[data-page="contact"] .contact-cooperation {
+        display: block !important;
+        width: calc(100% - 40px);
+        margin-inline: auto;
+        padding-block: 12px 40px;
+        text-align: center;
+    }
+
+    body[data-page="contact"] .contact-cooperation__heading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        margin: 0;
+        color: #121c31;
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.6;
+        text-align: center;
+    }
+
+    body[data-page="contact"] .contact-cooperation__heading::before,
+    body[data-page="contact"] .contact-cooperation__heading::after {
+        width: 40px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #f76e11);
+        content: "";
+    }
+
+    body[data-page="contact"] .contact-cooperation__heading::after {
+        transform: scaleX(-1);
+    }
+
+    body[data-page="contact"] .contact-cooperation__intro {
+        margin: 16px 0 0;
+        color: #121c31;
+        font-size: 14px;
+        line-height: 1.9;
+        text-align: center;
+    }
+
+    body[data-page="contact"] .contact-cooperation__items {
+        display: grid;
+        gap: 40px;
+        margin-top: 32px;
+    }
+
+    body[data-page="contact"] .contact-cooperation__item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+
+    body[data-page="contact"] .contact-cooperation__icon {
+        display: block;
+        width: 44px;
+        height: 44px;
+        color: #6586d7;
+        stroke: currentColor;
+        stroke-width: 1.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    body[data-page="contact"] .contact-cooperation__item h3 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.7;
+        text-align: center;
+    }
+
+    body[data-page="contact"] .contact-cooperation__item p {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.9;
+        text-align: center;
+    }
+
+    body[data-page="contact"] #top .contact-cooperation :is(p, h3) {
+        text-align: center !important;
+        text-align-last: center !important;
+    }
+
+    body[data-page="contact"] .contact-cooperation__item a {
+        display: inline-flex;
+        min-height: 44px;
+        align-items: center;
+        color: #f76e11;
+        font-size: 14px;
+        line-height: 1.7;
+        text-decoration: none;
+    }
+
+    body[data-page="contact"] .contact-cooperation__item a:is(:hover, :focus-visible) {
+        text-decoration: underline;
+        text-underline-offset: 4px;
+    }
+
+    body[data-page="contact"] #contact-form {
+        scroll-margin-top: 96px;
+    }
+}

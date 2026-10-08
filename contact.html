@@ -169,6 +169,69 @@
                             class="branch-card__map h-full w-full object-cover"
                         />
                     </article>
+
+                    <!-- Mobile reference: factory card uses the existing branch layout. -->
+                    <article
+                        class="branch-card branch-card--factory grid min-h-[150px] grid-cols-[1fr_112px] overflow-hidden rounded-[8px] bg-[#F8FAFF] shadow-[0_8px_22px_rgba(15,25,47,.12)] sm:grid-cols-[1fr_150px] min-[1180px]:min-h-[295px] min-[1180px]:grid-cols-[1fr_44%] min-[1180px]:rounded-[16px] site-card"
+                    >
+                        <div class="flex min-w-0 flex-col p-3 sm:p-4 min-[1180px]:p-6">
+                            <div class="branch-card__title-row flex items-center justify-start gap-2">
+                                <img
+                                    src="/assets/icons/contact/location.svg"
+                                    alt=""
+                                    class="branch-card__location-icon size-[18px] shrink-0 min-[1180px]:size-[28px]"
+                                />
+                                <h2 class="font-bold site-card__title">کارخانه</h2>
+                            </div>
+                            <p class="branch-card__address mt-1.5 text-[#172137]/85 min-[1180px]:mt-4">
+                                مشهد، کیلومتر ۲۵ جاده آسیایی، شهرک صنعتی ماشین‌سازی، بلوار اصلی، خیابان صنعت
+                            </p>
+                            <dl
+                                class="branch-card__details mt-1.5 text-[14px] leading-[1.75] text-[#172137]/85 sm:text-[14px] min-[1180px]:mt-3 min-[1180px]:text-[14px]"
+                            >
+                                <div class="branch-card__detail-row">
+                                    <dt>تلفن:</dt>
+                                    <dd dir="ltr">051-9100 2000</dd>
+                                </div>
+                                <div class="branch-card__detail-row">
+                                    <dt>موبایل:</dt>
+                                    <dd dir="ltr">0915 200 3000</dd>
+                                </div>
+                                <div class="branch-card__detail-row">
+                                    <dt>ایمیل:</dt>
+                                    <dd dir="ltr">mashhad@mps-co.com</dd>
+                                </div>
+                                <div class="branch-card__detail-row">
+                                    <dt>ساعات کاری:</dt>
+                                    <dd class="branch-card__detail-value--rtl">شنبه تا چهارشنبه، ۸ تا ۱۷</dd>
+                                </div>
+                            </dl>
+                            <div class="mt-auto grid grid-cols-2 gap-2 pt-2 min-[1180px]:pt-5">
+                                <a
+                                    href="https://wa.me/989152003000"
+                                    dir="ltr"
+                                    class="contact-whatsapp flex h-[24px] items-center justify-center gap-1.5 rounded-[4px] bg-[#FF7428] px-1 text-[14px] text-white min-[1180px]:h-[34px] min-[1180px]:text-[14px] site-card__cta"
+                                >
+                                    <img
+                                        src="/assets/icons/contact/whatsapp.svg"
+                                        alt=""
+                                        class="contact-whatsapp__icon size-3 shrink-0 min-[1180px]:size-4"
+                                    />
+                                    <span dir="rtl" class="text-white site-card__cta-label">گفت‌وگو در واتساپ</span>
+                                </a>
+                                <a
+                                    href="https://www.google.com/maps/search/?api=1&amp;query=%D9%85%D8%B4%D9%87%D8%AF%D8%8C%20%DA%A9%DB%8C%D9%84%D9%88%D9%85%D8%AA%D8%B1%20%DB%B2%DB%B5%20%D8%AC%D8%A7%D8%AF%D9%87%20%D8%A2%D8%B3%DB%8C%D8%A7%DB%8C%DB%8C%D8%8C%20%D8%B4%D9%87%D8%B1%DA%A9%20%D8%B5%D9%86%D8%B9%D8%AA%DB%8C%20%D9%85%D8%A7%D8%B4%DB%8C%D9%86%E2%80%8C%D8%B3%D8%A7%D8%B2%DB%8C%D8%8C%20%D8%A8%D9%84%D9%88%D8%A7%D8%B1%20%D8%A7%D8%B5%D9%84%DB%8C%D8%8C%20%D8%AE%DB%8C%D8%A7%D8%A8%D8%A7%D9%86%20%D8%B5%D9%86%D8%B9%D8%AA"
+                                    class="contact-location-button flex h-[24px] items-center justify-center rounded-[4px] border border-[#FF7428] px-1 text-[14px] text-[#FF7428] min-[1180px]:h-[34px] min-[1180px]:text-[14px] site-card__cta"
+                                    ><span class="site-card__cta-label">ارسال لوکیشن</span></a
+                                >
+                            </div>
+                        </div>
+                        <img
+                            src="/assets/images/contact/mashhad-map.svg"
+                            alt="نقشه کارخانه مارپیچ صنعت"
+                            class="branch-card__map h-full w-full object-cover"
+                        />
+                    </article>
                 </div>
             </section>
 
@@ -295,6 +358,60 @@
                             data-form-status
                         ></p>
                     </form>
+                </section>
+
+                <!-- Mobile reference: cooperation sits between the form and benefits. -->
+                <section class="contact-cooperation" aria-labelledby="contact-cooperation-title">
+                    <h2 id="contact-cooperation-title" class="contact-cooperation__heading">همکاری با ما</h2>
+                    <p class="contact-cooperation__intro">
+                        ما به دنبال ساختن یک تیم محدود نیستیم؛ به دنبال توسعه یک شبکه حرفه‌ای از افراد متخصص و همکاران
+                        قابل اعتماد هستیم.
+                    </p>
+                    <div class="contact-cooperation__items">
+                        <article class="contact-cooperation__item">
+                            <svg
+                                class="contact-cooperation__icon"
+                                viewBox="0 0 48 48"
+                                fill="none"
+                                aria-hidden="true"
+                                focusable="false"
+                            >
+                                <circle cx="20" cy="13" r="6" />
+                                <path d="M8 36v-4a10 10 0 0 1 10-10h4a10 10 0 0 1 10 10v4H8Z" />
+                                <path d="M33 8a6 6 0 0 1 0 12M36 24a10 10 0 0 1 5 8v4h-5" />
+                            </svg>
+                            <h3>پیوستن به تیم مارپیچ صنعت</h3>
+                            <p>فرصت‌های شغلی برای متخصصان و نیروهای توانمند در بخش‌های مختلف MPS.</p>
+                            <a
+                                href="#contact-form"
+                                data-contact-request-type="employment"
+                                data-contact-request-label="فرصت‌های شغلی"
+                                >[ مشاهده فرصت‌های شغلی ]</a
+                            >
+                        </article>
+                        <article class="contact-cooperation__item">
+                            <svg
+                                class="contact-cooperation__icon"
+                                viewBox="0 0 48 48"
+                                fill="none"
+                                aria-hidden="true"
+                                focusable="false"
+                            >
+                                <path d="M14 17a10 10 0 0 1 20 0M12 18h24M21 7v7M27 7v7" />
+                                <path
+                                    d="M17 19v4a7 7 0 0 0 14 0v-4M17 31l7 5 7-5M15 32l-5 4v7h28v-7l-5-4M17 35v8M31 35v8"
+                                />
+                            </svg>
+                            <h3>شبکه همکاران نصاب</h3>
+                            <p>همکاری با نصاب‌ها و تیم‌های اجرایی برای نصب و راه‌اندازی محصولات تهویه.</p>
+                            <a
+                                href="#contact-form"
+                                data-contact-request-type="installer-partnership"
+                                data-contact-request-label="عضویت در شبکه نصاب‌ها"
+                                >[ پیوستن به شبکه نصاب‌ها ]</a
+                            >
+                        </article>
+                    </div>
                 </section>
 
                 <!-- Benefits -->
