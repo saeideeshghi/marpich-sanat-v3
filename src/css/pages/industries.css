@@ -94,7 +94,7 @@
     direction: ltr;
     grid-template-rows: 200px 208px 196px;
     gap: 16px;
-    padding-top: 4px;
+    padding-top: 64px;
 }
 
 .industry-feature {
@@ -431,7 +431,6 @@ body[data-page="industries"] .industry-card__tag {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         grid-template-rows: 184px 132px 150px 145px 145px;
         gap: 8px;
-        padding-top: 2px;
     }
 
     .industry-feature {

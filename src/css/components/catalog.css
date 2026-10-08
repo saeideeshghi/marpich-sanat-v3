@@ -536,45 +536,48 @@
 
 .catalog-consultation__submit {
     position: relative;
-    grid-column: 1 / -1;
+    /* In this RTL grid column 2 is the left/company-field column. */
+    grid-column: 2;
     display: inline-flex;
-    width: fit-content;
+    width: 100%;
     max-width: 100%;
     min-width: 0;
-    min-height: 45px;
+    min-height: 46px;
     align-items: center;
     justify-content: flex-start;
-    justify-self: start;
+    justify-self: stretch;
+    gap: 12px;
     box-sizing: border-box;
     border: 0;
     border-radius: 16px;
     background: linear-gradient(90deg, #f76e11 0%, #f4824c 100%);
-    padding: 0 8px 0 44px;
+    padding: 12px 16px;
     color: #fff;
     direction: rtl;
     text-align: right;
     font: inherit;
     font-size: 14px;
     font-weight: 600;
+    line-height: 1.6;
     cursor: pointer;
     box-shadow: none;
 }
 
 .catalog-consultation__submit span {
     display: block;
-    width: auto;
+    flex: 1;
     min-width: 0;
     text-align: right;
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: break-word;
 }
 
 .catalog-consultation__submit img {
-    position: absolute;
-    top: 50%;
-    left: 12px;
+    position: static;
+    flex: 0 0 24px;
     width: 24px;
     height: 24px;
-    transform: translateY(-50%);
+    transform: none;
     pointer-events: none;
 }
 
@@ -605,9 +608,6 @@
     .catalog-consultation__form {
         width: min(100%, 600px);
         margin-inline: auto;
-    }
-    .catalog-consultation__submit {
-        justify-self: center;
     }
 }
 
@@ -896,8 +896,8 @@
     }
 
     .catalog-consultation__submit {
-        grid-column: auto;
-        width: fit-content;
+        grid-column: 1;
+        width: 100%;
         max-width: 100%;
         min-height: 41px;
         border-radius: 8px;

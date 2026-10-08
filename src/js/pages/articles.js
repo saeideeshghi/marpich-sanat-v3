@@ -114,26 +114,35 @@ function initArticlesPage() {
 
 initArticlesPage();
 
-// Keep the dark header and pattern behind all wrapped heading text, including
-// narrow screens and the final loaded font. Measuring both rects cancels scroll.
+// Place two thirds of the search form over the dark hero at every width.
+// Measure after font/filter changes; rect differences also remain stable on scroll.
 const articleHero = document.querySelector(".articles-hero");
 const articleHeading = articleHero?.querySelector(".articles-hero__heading");
-if (articleHero && articleHeading) {
+const articleSearch = articleHero?.querySelector(".articles-search");
+if (articleHero && articleHeading && articleSearch) {
     const fitArticleBackdrop = () => {
-        const bottom = articleHeading.getBoundingClientRect().bottom - articleHero.getBoundingClientRect().top;
-        const value = `${Math.ceil(bottom + 32)}px`;
-        if (articleHero.style.getPropertyValue("--articles-heading-bottom") !== value) {
-            articleHero.style.setProperty("--articles-heading-bottom", value);
+        const heroTop = articleHero.getBoundingClientRect().top;
+        const headingBottom = `${Math.ceil(articleHeading.getBoundingClientRect().bottom - heroTop + 32)}px`;
+        if (articleHero.style.getPropertyValue("--articles-heading-bottom") !== headingBottom) {
+            articleHero.style.setProperty("--articles-heading-bottom", headingBottom);
+        }
+        const search = articleSearch.getBoundingClientRect();
+        const value = `${search.top - heroTop + (search.height * 2) / 3}px`;
+        if (articleHero.style.getPropertyValue("--articles-search-backdrop-height") !== value) {
+            articleHero.style.setProperty("--articles-search-backdrop-height", value);
         }
     };
     let backdropFrame = 0;
-    new ResizeObserver(() => {
+    const observer = new ResizeObserver(() => {
         if (backdropFrame) return;
         backdropFrame = requestAnimationFrame(() => {
             backdropFrame = 0;
             fitArticleBackdrop();
         });
-    }).observe(articleHeading);
+    });
+    observer.observe(articleHeading);
+    observer.observe(articleSearch);
+    observer.observe(articleHero.querySelector(".site-hero__content"));
     document.fonts.ready.then(fitArticleBackdrop);
     fitArticleBackdrop();
 }

@@ -154,6 +154,26 @@ body[data-page="project-details"] .project-details__product-card .site-card__des
     font-size: 14px !important;
 }
 }
+body[data-page="home"] .home-projects-grid > article.site-card > div.site-card__body > p.site-card__description:not([hidden]) {
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 3 !important;
+    line-clamp: 3 !important;
+    max-height: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+}
+body[data-page="projects"] .projects-page__card > div.projects-page__card-body > p.projects-page__card-description:not([hidden]) {
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 3 !important;
+    line-clamp: 3 !important;
+    max-height: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+}
 @media (min-width: 1180px) {
 body[data-page="home"] .home-process-step > h3 {
     text-align-last: center !important;
@@ -428,6 +448,14 @@ body[data-page="articles"] .article-card > div.article-card__body:nth-of-type(2)
 body[data-page="articles"] .article-card > div.article-card__body:nth-of-type(2) > h3.article-card__title {
     font-size: 16px !important;
 }
+}
+body[data-page="projects"] #testimonials-title {
+    text-align: center !important;
+    text-align-last: center !important;
+}
+body[data-page="industry-textile"] #industry-testimonials-title {
+    text-align: center !important;
+    text-align-last: center !important;
 }
 @media (min-width: 1180px) {
 body[data-page="home"] .home-process-steps > li.home-process-step:nth-of-type(1) > p {

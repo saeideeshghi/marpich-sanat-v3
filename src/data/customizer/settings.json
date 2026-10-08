@@ -1918,6 +1918,56 @@
       "properties": {
         "font-size": 20
       }
+    },
+    {
+      "page": "home",
+      "breakpoint": "all",
+      "target": {
+        "kind": "component",
+        "selector": ".home-projects-grid > article.site-card > div.site-card__body > p.site-card__description",
+        "label": "توضیحات کارت‌های پروژه‌های شاخص"
+      },
+      "properties": {
+        "description-lines": 3
+      }
+    },
+    {
+      "page": "projects",
+      "breakpoint": "all",
+      "target": {
+        "kind": "component",
+        "selector": ".projects-page__card > div.projects-page__card-body > p.projects-page__card-description",
+        "label": "توضیحات کارت‌های پروژه‌ها"
+      },
+      "properties": {
+        "description-lines": 3
+      }
+    },
+    {
+      "page": "projects",
+      "breakpoint": "all",
+      "target": {
+        "kind": "element",
+        "selector": "#testimonials-title",
+        "label": "عنوان نظرات مشتریان"
+      },
+      "properties": {
+        "text-align": "center",
+        "text-align-last": "center"
+      }
+    },
+    {
+      "page": "industry-textile",
+      "breakpoint": "all",
+      "target": {
+        "kind": "element",
+        "selector": "#industry-testimonials-title",
+        "label": "عنوان نظرات مشتریان نساجی"
+      },
+      "properties": {
+        "text-align": "center",
+        "text-align-last": "center"
+      }
     }
   ]
 }

@@ -134,6 +134,13 @@
     "editable": true,
     "property": "color"
   },
+  "--articles-search-backdrop-height": {
+    "kind": "length",
+    "selectors": [],
+    "editable": false,
+    "reason": "از موقعیت فرم و دو سوم ارتفاع آن محاسبه می‌شود؛ خروجی اندازه‌گیری است و در هر عرض خودکار تغییر می‌کند.",
+    "property": "width"
+  },
   "--auth-muted-text-color": {
     "kind": "color",
     "selectors": [".auth-dialog"],

@@ -3,6 +3,8 @@ export function tokenContract(tokens) {
     const runtimeHelp = {
         "--articles-heading-bottom":
             "از انتهای واقعی عنوان مقالات محاسبه می‌شود؛ ارتفاع زمینه را با articles-backdrop-min-height تنظیم کن.",
+        "--articles-search-backdrop-height":
+            "از موقعیت فرم و دو سوم ارتفاع آن محاسبه می‌شود؛ خروجی اندازه‌گیری است و در هر عرض خودکار تغییر می‌کند.",
         "--contact-intro-background":
             "از ارتفاع متن تماس محاسبه می‌شود؛ ارتفاع زمینه را با contact-backdrop-min-height تنظیم کن.",
         "--hero-summary-overlap":

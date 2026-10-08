@@ -5,6 +5,7 @@
 @import "./fonts.css";
 @import "./base.css";
 @import "./components/site.css";
+@import "./components/card-effects.css";
 @import "./components/fixed-header.css";
 @import "./components/footer.css";
 @import "./components/pattern.css";

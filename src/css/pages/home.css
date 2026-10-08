@@ -605,6 +605,16 @@
     height: 80px;
     object-fit: contain;
 }
+
+/* Preserve the full service note in the DOM/title while keeping card rows short. */
+body[data-page="home"] .home-project__services {
+    display: block;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
 body[data-page="home"] .home-why__accent {
     display: block;
     width: 64px;

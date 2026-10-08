@@ -25,7 +25,10 @@
    ========================================================= */
 .articles-hero {
     --articles-backdrop-min-height: 306px;
-    --site-pattern-crop-height: max(var(--articles-backdrop-min-height), var(--articles-heading-bottom, 0px));
+    --site-pattern-crop-height: var(
+        --articles-search-backdrop-height,
+        max(var(--articles-backdrop-min-height), var(--articles-heading-bottom, 0px))
+    );
     position: relative;
     z-index: 3;
     min-height: 356px;
@@ -94,7 +97,7 @@
     border: 1px solid #e0e6ef;
     border-radius: 16px;
     background: #f8faff;
-    box-shadow: 0 8px 20px rgb(15 23 43 / 0.12);
+    box-shadow: var(--shadow-card);
     color: var(--articles-navy-color);
 }
 
