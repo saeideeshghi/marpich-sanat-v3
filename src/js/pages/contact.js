@@ -123,13 +123,12 @@ function initContactForm() {
     });
 }
 
-function initMobileCooperation() {
+function initCooperation() {
     const requestType = document.querySelector("#request-type");
     if (!requestType) return;
 
     document.querySelectorAll("[data-contact-request-type]").forEach((link) => {
         link.addEventListener("click", () => {
-            if (!matchMedia("(max-width: 639px)").matches) return;
             const { contactRequestType: value, contactRequestLabel: label } = link.dataset;
             if (!value || !label) return;
             let option = [...requestType.options].find((item) => item.value === value);
@@ -146,7 +145,7 @@ function initMobileCooperation() {
 initSite();
 initFileUpload();
 initContactForm();
-initMobileCooperation();
+initCooperation();
 
 // Keep the dark surface behind the introduction and part of the first office
 // card, matching the overlap in both references after fonts load or text wraps.
