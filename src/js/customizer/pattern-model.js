@@ -92,6 +92,7 @@ export function normalizePattern(input) {
         if (p.animation) animation({ ...result.animation, ...p.animation });
     }
     for (const artwork of Object.values(result.artworks || {})) {
+        if (artwork.strokeOnly !== undefined && typeof artwork.strokeOnly !== "boolean") fail();
         if (
             !Array.isArray(artwork.viewBox) ||
             artwork.viewBox.length !== 4 ||

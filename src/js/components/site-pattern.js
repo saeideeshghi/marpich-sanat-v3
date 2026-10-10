@@ -14,6 +14,7 @@
 import patternSettings from "../../data/patterns/site-pattern.json";
 import footerPatternSettings from "../../data/patterns/footer-pattern.json";
 import { normalizePattern, PATTERN_RENDER_DEFAULTS } from "../customizer/pattern-model.js";
+import { continuousLoopProgress, repeatingLightStops } from "./pattern-loop.js";
 const mountedPatterns = new Map();
 let previewListener = false;
 
@@ -192,16 +193,15 @@ export function mountPattern(root, initialConfig, initialTime = 0) {
 
             const light = create(
                 "linearGradient",
-                { id: `${uid}-light-${index}`, gradientUnits: "userSpaceOnUse", y1: 0, y2: 0 },
+                {
+                    id: `${uid}-light-${index}`,
+                    gradientUnits: "userSpaceOnUse",
+                    spreadMethod: "repeat",
+                    y1: 0,
+                    y2: 0,
+                },
                 defs,
             );
-            setGradientStops(light, [
-                { offset: 0, color: animation.lightColor, opacity: 0 },
-                { offset: 34, color: animation.lightColor, opacity: 0.3 },
-                { offset: 50, color: animation.coreColor, opacity: 1 },
-                { offset: 67, color: animation.lightColor, opacity: 0.65 },
-                { offset: 100, color: animation.lightColor, opacity: 0 },
-            ]);
 
             const group = create("g", {}, normal);
             const glowWrapper = create("g", {}, glowGroup);
@@ -213,11 +213,11 @@ export function mountPattern(root, initialConfig, initialTime = 0) {
                 item.setAttribute("opacity", line.opacity / 100);
             });
 
-            // Preserve the filled source geometry; a configurable outline supports
-            // thin edges that would otherwise disappear between device pixels.
+            // Filled artwork keeps its ribbons. Mobile footer centre lines use
+            // strokes, so return edges cannot leave hooks or solid fill wedges.
             const attrs = {
                 d: line.d,
-                fill: `url(#${uid}-gradient-${index})`,
+                fill: artwork.strokeOnly ? "none" : `url(#${uid}-gradient-${index})`,
                 stroke: `url(#${uid}-gradient-${index})`,
                 "stroke-width": line.thickness,
                 "stroke-linejoin": "round",
@@ -230,6 +230,7 @@ export function mountPattern(root, initialConfig, initialTime = 0) {
                     d: line.d,
                     "stroke-width": line.thickness,
                     "stroke-linejoin": "round",
+                    ...(artwork.strokeOnly ? { "stroke-linecap": "round", "vector-effect": "non-scaling-stroke" } : {}),
                 },
                 defs,
             );
@@ -242,7 +243,7 @@ export function mountPattern(root, initialConfig, initialTime = 0) {
                 "use",
                 {
                     href: `#${uid}-path-${index}`,
-                    fill: `url(#${uid}-light-${index})`,
+                    fill: artwork.strokeOnly ? "none" : `url(#${uid}-light-${index})`,
                     stroke: `url(#${uid}-light-${index})`,
                 },
                 group,
@@ -251,7 +252,7 @@ export function mountPattern(root, initialConfig, initialTime = 0) {
                 "use",
                 {
                     href: `#${uid}-path-${index}`,
-                    fill: `url(#${uid}-light-${index})`,
+                    fill: artwork.strokeOnly ? "none" : `url(#${uid}-light-${index})`,
                     stroke: `url(#${uid}-light-${index})`,
                 },
                 glowWrapper,
@@ -484,6 +485,12 @@ export function mountPattern(root, initialConfig, initialTime = 0) {
         for (const node of nodes) {
             const matrix = node.normalPath.getScreenCTM();
             let width = Math.max(0, node.line.thickness);
+            if (artwork.strokeOnly) {
+                // Non-scaling strokes keep the same CSS-pixel weight in a tall
+                // portrait footer, even while the SVG stretches or waves.
+                setAttribute(node.basePath, "stroke-width", Math.max(width, minimum).toFixed(4));
+                continue;
+            }
             if (minimum > 0 && matrix) {
                 // The smallest singular scale handles rotation plus unequal
                 // portrait/footer scaling. Column lengths alone miss thin edges.
@@ -564,24 +571,8 @@ export function mountPattern(root, initialConfig, initialTime = 0) {
         const samples = 64;
         const fractions = Array.from({ length: samples + 1 }, (_, i) => i / samples);
         const axis = artwork.lightAxis === "y" ? "y" : "x";
-        const extent = axis === "y" ? "height" : "width";
-        const bounds = nodes.map((node) => node.basePath.getBBox());
-        const guard =
-            Math.max(
-                ...nodes.map(
-                    (node) =>
-                        Math.abs((((animation.amplitude * node.line.wave) / 100) * profile.motion) / 100) +
-                        Math.max(0, Number(node.basePath.getAttribute("stroke-width")) || 0),
-                ),
-            ) +
-            Math.max(0, animation.glow) * 4;
-        const width = Math.max(1, animation.lightWidth);
-        // All lines share the moving light band, including paths outside viewBox.
-        const start = Math.min(0, ...bounds.map((b) => b[axis])) - guard - width;
-        const end =
-            Math.max(axis === "y" ? sceneHeight : sceneWidth, ...bounds.map((b) => b[axis] + b[extent])) +
-            guard +
-            width;
+        const span = Math.max(1, axis === "y" ? sceneHeight : sceneWidth);
+        const lightStops = repeatingLightStops(span, animation.lightWidth, animation.lightColor, animation.coreColor);
         for (const node of nodes) {
             const line = node.line;
             setAttribute(node.basePath, "d", line.d);
@@ -599,22 +590,23 @@ export function mountPattern(root, initialConfig, initialTime = 0) {
             setAttribute(node.group, "opacity", (line.opacity / 100) * emphasis);
             setAttribute(node.glowWrapper, "opacity", (line.opacity / 100) * emphasis);
             if (!active) continue;
-            // Lines can extend outside the authored viewBox. End the light beyond
-            // their actual bounds, so resetting the loop is completely invisible.
-            const center = fractions.map(
-                (f) => start + (end - start) * (animation.lightDirection === 1 ? eased(f) : 1 - eased(f)),
+            // Start with light inside the drawing. Neighbouring repeat tiles hand
+            // it across the edges; no off-canvas travel creates a dark wait.
+            setGradientStops(node.light, lightStops);
+            const origins = fractions.map(
+                (f) => -span / 4 + span * animation.lightDirection * continuousLoopProgress(f, animation.easing),
             );
             const total = animation.lightPeriod + Math.max(0, animation.lightPause);
             const keyTimes = fractions.map((f) => (f * animation.lightPeriod) / total);
             if (animation.lightPause > 0) {
-                center.push(center.at(-1));
+                origins.push(origins.at(-1));
                 keyTimes.push(1);
             }
             for (const [name, offset] of [
-                [`${axis}1`, -width / 2],
-                [`${axis}2`, width / 2],
+                [`${axis}1`, 0],
+                [`${axis}2`, span],
             ]) {
-                const values = center.map((v) => v + offset);
+                const values = origins.map((v) => v + offset);
                 setAttribute(node.light, name, values[0]);
                 animate(node.light, name, values, total / line.speed, { delay: line.delay, keyTimes });
             }

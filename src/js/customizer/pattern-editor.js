@@ -108,6 +108,7 @@ export function createPatternEditor({ container, getConfig, commit, preview, set
                 <button type="button" id="pattern-preset-light" class="mps-link">نسخه سبک · فقط نور</button>
             </div>
             <p class="mps-help">با زوم ۱۰۰٪ بررسی کن. برای خطوط محو و بریده: «حداقل ضخامت پیکسلی» را ۱ یا ۱٫۲ بگذار. برای حرکت آرام‌تر: سرعت ۰٫۵، دوره موج ۳۰ تا ۳۶ ثانیه، دوره نور ۱۸ تا ۲۴ ثانیه؛ درخشش و ضربان صفر. ضخامت پیکسلی با ضخامت مسیر SVG فرق دارد.</p>
+            <p class="mps-help">برای شروع و تکرار بدون مکث: «مکث نور» و «تأخیر ورود» صفر، ورود «بدون ورود» و تأخیر هر مسیر صفر باشد. نور تکرارشونده از داخل طرح شروع می‌شود؛ هر دو حالت حرکت یکنواخت و نرم در مرز چرخه ادامه دارند.</p>
             <p id="pattern-motion-status" class="mps-help" role="status" aria-live="polite"></p>
         </details>
         <div class="mps-selection-actions" style="margin-top:12px"><button id="pattern-locate" class="mps-link">رفتن به پترن</button><button id="pattern-pause" class="mps-link">مکث انیمیشن</button></div>

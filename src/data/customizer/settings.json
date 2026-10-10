@@ -1968,6 +1968,102 @@
         "text-align": "center",
         "text-align-last": "center"
       }
+    },
+    {
+      "page": "about",
+      "breakpoint": "all",
+      "target": {
+        "kind": "element",
+        "selector": ".about-certificate-card__caption > span",
+        "label": "زیرعنوان گواهینامه"
+      },
+      "properties": {
+        "text-align": "center",
+        "text-align-last": "center"
+      }
+    },
+    {
+      "page": "about",
+      "breakpoint": "all",
+      "target": {
+        "kind": "element",
+        "selector": ".about-certificate-card__caption > strong.site-card__title",
+        "label": "عنوان گواهینامه"
+      },
+      "properties": {
+        "text-align": "center",
+        "text-align-last": "center"
+      }
+    },
+    {
+      "page": "about",
+      "breakpoint": "all",
+      "target": {
+        "kind": "element",
+        "selector": ".about-certificate-card__caption > p.site-card__description",
+        "label": "توضیح گواهینامه"
+      },
+      "properties": {
+        "text-align": "center",
+        "text-align-last": "center",
+        "description-lines": 0
+      }
+    },
+    {
+      "page": "about",
+      "breakpoint": "range",
+      "target": {
+        "kind": "element",
+        "selector": ".about-gallery__content > p.site-prose",
+        "label": "توضیح گالری در موبایل"
+      },
+      "properties": {
+        "font-size": 12
+      },
+      "range": {
+        "min": 0,
+        "max": 767
+      }
+    },
+    {
+      "page": "about",
+      "breakpoint": "range",
+      "target": {
+        "kind": "element",
+        "selector": ".about-certificate-card__caption > p.site-card__description",
+        "label": "توضیح گواهینامه در موبایل"
+      },
+      "properties": {
+        "font-size": 12
+      },
+      "range": {
+        "min": 0,
+        "max": 767
+      }
+    },
+    {
+      "page": "about",
+      "breakpoint": "all",
+      "target": {
+        "kind": "element",
+        "selector": ".about-story__intro > p.about-story__text.site-prose",
+        "label": "توضیح مسیر توسعه"
+      },
+      "properties": {
+        "font-size": 14
+      }
+    },
+    {
+      "page": "about",
+      "breakpoint": "all",
+      "target": {
+        "kind": "element",
+        "selector": ".about-timeline__body > p.site-prose",
+        "label": "توضیح مراحل تاریخچه"
+      },
+      "properties": {
+        "font-size": 14
+      }
     }
   ]
 }

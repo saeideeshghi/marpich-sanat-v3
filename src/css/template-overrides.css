@@ -457,6 +457,32 @@ body[data-page="industry-textile"] #industry-testimonials-title {
     text-align: center !important;
     text-align-last: center !important;
 }
+body[data-page="about"] .about-certificate-card__caption > span {
+    text-align: center !important;
+    text-align-last: center !important;
+}
+body[data-page="about"] .about-certificate-card__caption > strong.site-card__title {
+    text-align: center !important;
+    text-align-last: center !important;
+}
+body[data-page="about"] .about-certificate-card__caption > p.site-card__description:not([hidden]) {
+    text-align: center !important;
+    text-align-last: center !important;
+    display: block !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: unset !important;
+    line-clamp: none !important;
+    max-height: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+}
+body[data-page="about"] .about-story__intro > p.about-story__text.site-prose {
+    font-size: 14px !important;
+}
+body[data-page="about"] .about-timeline__body > p.site-prose {
+    font-size: 14px !important;
+}
 @media (min-width: 1180px) {
 body[data-page="home"] .home-process-steps > li.home-process-step:nth-of-type(1) > p {
     text-align-last: center !important;
@@ -845,5 +871,15 @@ body[data-page="articles"] .articles-hero__description {
 @media (max-width: 639px) {
 body[data-page="articles"] #articles-consultation-title {
     font-size: 16px !important;
+}
+}
+@media (max-width: 767px) {
+body[data-page="about"] .about-gallery__content > p.site-prose {
+    font-size: 12px !important;
+}
+}
+@media (max-width: 767px) {
+body[data-page="about"] .about-certificate-card__caption > p.site-card__description {
+    font-size: 12px !important;
 }
 }

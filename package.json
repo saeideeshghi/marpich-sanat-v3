@@ -10,7 +10,7 @@
     "build:pages": "vite build --mode pages && node scripts/check-pages.js",
     "preview": "vite preview",
     "preview:pages": "vite preview --mode pages",
-    "check": "node scripts/check-project.js && node scripts/check-components.js && node scripts/check-handoff.js && node scripts/check-customizer.js && node scripts/check-view-tools.js && node scripts/check-token-editor.js && node scripts/check-platform.js && node scripts/check-publish.js && node scripts/check-github.js",
+    "check": "node scripts/check-project.js && node scripts/check-components.js && node scripts/check-certificate-assets.js && node scripts/check-pattern-motion.js && node scripts/check-handoff.js && node scripts/check-customizer.js && node scripts/check-view-tools.js && node scripts/check-token-editor.js && node scripts/check-platform.js && node scripts/check-publish.js && node scripts/check-github.js",
     "check:assets": "node scripts/check-assets.js",
     "check:pages": "node scripts/check-pages.js",
     "format": "prettier --write .",

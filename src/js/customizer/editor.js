@@ -26,6 +26,7 @@ import { imageSourceRules } from "./image-source.js";
 import { createTokenReference } from "./token-reference.js";
 import { tokenRule } from "./token-values.js";
 import { describeToken } from "./token-descriptions.js";
+import { createAboutImageControls } from "./about-image-controls.js";
 
 const $ = (id) => document.getElementById(id);
 const ui = Object.fromEntries(
@@ -135,6 +136,31 @@ const fields = createStyleControls({
     onBlur: refreshFields,
     onInvalid: (text) => message(text, true),
     onReference: showToken,
+});
+const aboutImageControls = createAboutImageControls({
+    container: $("about-image-controls"),
+    getContext: () => ({
+        page: currentPage,
+        breakpoint: currentBreakpoint,
+        range: customRange,
+        width: currentWidth,
+        config: comparing ? saved : draft,
+        document: frameDocument,
+        enabled: ready && !busy && !comparing,
+    }),
+    onChange: (next, key) => {
+        commit(next, key);
+        refreshFields();
+        message("تصویر درباره ما در همین اندازه به‌روز شد؛ برای ذخیره، تأیید و ثبت را بزن.");
+    },
+    onSize: (breakpoint, width) => {
+        currentBreakpoint = breakpoint;
+        ui.breakpoint.value = breakpoint;
+        if (width) setWidth(width, breakpoint);
+        refreshTargets();
+        refreshFields();
+    },
+    onInvalid: (text) => message(text, true),
 });
 const viewportResizer = createViewportResizer({
     handles: document.querySelectorAll("[data-resize-side]"),
@@ -413,6 +439,7 @@ function refreshFields() {
     watchFrameLayout(first);
     positionOverlays();
     refreshRangeStatus();
+    aboutImageControls.render();
 }
 
 function watchFrameLayout(element) {
@@ -504,6 +531,7 @@ function refreshState() {
     asText(ui["rule-count"], `(${draft.rules.length.toLocaleString("fa")})`);
     renderRules();
     refreshRangeStatus();
+    aboutImageControls.render();
 }
 function renderRules() {
     const serialized = JSON.stringify(draft.rules) + $("rule-search").value;
