@@ -217,6 +217,14 @@ body[data-page="expertise"]
     background: #f76e11;
     color: #fff;
 }
+@media (min-width: 1180px) {
+    /* Keep the photograph behind the white frame at its antialiased corners,
+     * so the baked shadow cannot form a dark outline along the card edge. */
+    .expertise-page__artwork {
+        inset: 1px;
+        border-radius: calc(var(--card-radius) - 1px);
+    }
+}
 @media (max-width: 1179px) {
     /* Separate copy from the wide artwork when an overlay would crop most of
      * the photograph. The media wrapper retains the original shadow gutters. */

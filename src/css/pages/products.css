@@ -10,6 +10,14 @@ body[data-page="products"] {
     overflow-x: clip;
 }
 
+/* The category stage changes height on every animation frame. Keep the two
+ * large, static backgrounds cached on separate layers instead of repainting
+ * their SVG/gradients across the entire page as the content below moves. */
+body[data-page="products"] .site-page-background-layer,
+.products-main.products-pattern {
+    will-change: transform;
+}
+
 .products-page {
     min-height: 100vh;
 

@@ -468,8 +468,10 @@ export function initProductCategoryMotion(root, options = {}) {
             add(node, frames, duration, delay = 0, easing = MOTION_EASINGS[cfg.easing]) {
                 if (!node || !animate || !node.animate) return;
                 if (
-                    node.matches(".pcm-image-ghost, .pcm-surface") &&
-                    frames.some((frame) => frame.width !== undefined)
+                    node.matches(".pcm-image-ghost, .pcm-surface, .pcm-copy-ghost") &&
+                    frames.some((frame) =>
+                        ["left", "right", "top", "width", "height"].some((key) => frame[key] !== undefined),
+                    )
                 ) {
                     const initial = {
                         left: node.style.left,
@@ -787,7 +789,7 @@ export function initProductCategoryMotion(root, options = {}) {
             );
         motion.add(
             oldCopy,
-            [{ opacity: 1 }, { opacity: 0, transform: corner ? "none" : "translateY(-5px)" }],
+            [{ opacity: 1 }, { opacity: 0, ...(!corner ? { transform: "translateY(-5px)" } : {}) }],
             Math.min(cfg.siblingsFade, Math.max(60, cfg.contentDelay)),
             0,
             "ease",
