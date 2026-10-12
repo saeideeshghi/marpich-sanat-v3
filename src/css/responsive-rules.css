@@ -175,6 +175,8 @@ body[data-page] [data-consultation] h2 {
         display: none;
     }
     body[data-page="home"] .home-process-arrow {
+        /* Half of the 16px column gap belongs on each side of the connector. */
+        left: calc(-50% - 8px);
         padding-inline: calc(var(--icon-size) / 2 + 12px);
     }
     body[data-page="home"] .home-partners__title {

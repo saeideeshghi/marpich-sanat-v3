@@ -1,9 +1,4 @@
-// Page entry: shared foundation first, page styles next, responsive layer last.
-import "../../css/main.css";
-import "../../css/pages/articles.css";
-import "../../css/components/content-flow.css";
-import "../../css/components/catalog.css";
-import "../../css/responsive.css";
+// Page behavior; the head loads styles before this module.
 import { initSite } from "../main.js";
 import { normalizeSearchText } from "../utils/search-text.js";
 
@@ -113,36 +108,3 @@ function initArticlesPage() {
 }
 
 initArticlesPage();
-
-// Place two thirds of the search form over the dark hero at every width.
-// Measure after font/filter changes; rect differences also remain stable on scroll.
-const articleHero = document.querySelector(".articles-hero");
-const articleHeading = articleHero?.querySelector(".articles-hero__heading");
-const articleSearch = articleHero?.querySelector(".articles-search");
-if (articleHero && articleHeading && articleSearch) {
-    const fitArticleBackdrop = () => {
-        const heroTop = articleHero.getBoundingClientRect().top;
-        const headingBottom = `${Math.ceil(articleHeading.getBoundingClientRect().bottom - heroTop + 32)}px`;
-        if (articleHero.style.getPropertyValue("--articles-heading-bottom") !== headingBottom) {
-            articleHero.style.setProperty("--articles-heading-bottom", headingBottom);
-        }
-        const search = articleSearch.getBoundingClientRect();
-        const value = `${search.top - heroTop + (search.height * 2) / 3}px`;
-        if (articleHero.style.getPropertyValue("--articles-search-backdrop-height") !== value) {
-            articleHero.style.setProperty("--articles-search-backdrop-height", value);
-        }
-    };
-    let backdropFrame = 0;
-    const observer = new ResizeObserver(() => {
-        if (backdropFrame) return;
-        backdropFrame = requestAnimationFrame(() => {
-            backdropFrame = 0;
-            fitArticleBackdrop();
-        });
-    });
-    observer.observe(articleHeading);
-    observer.observe(articleSearch);
-    observer.observe(articleHero.querySelector(".site-hero__content"));
-    document.fonts.ready.then(fitArticleBackdrop);
-    fitArticleBackdrop();
-}

@@ -131,7 +131,7 @@
         "key": "hero-description"
       },
       "properties": {
-        "text-align": "justify",
+        "text-align": "right",
         "text-align-last": "right",
         "direction": "rtl"
       }
@@ -323,7 +323,7 @@
         "key": "project-product-description"
       },
       "properties": {
-        "font-size": 14
+        "font-size": 16
       }
     },
     {
@@ -650,8 +650,6 @@
         "label": "باکس‌های تکراری · تصویر · اهمیت طراحی صحیح کانال"
       },
       "properties": {
-        "height": 100,
-        "max-width": 100,
         "align-self": "center"
       }
     },
@@ -797,7 +795,7 @@
         "label": "باکس‌های تکراری · آیتم · مشاوره و طراحی مهندسی تحلیل دقیق"
       },
       "properties": {
-        "justify-self": "center"
+        "justify-self": "stretch"
       }
     },
     {
@@ -1243,7 +1241,7 @@
         "label": "باکس‌های تکراری · متن · طراحی‌شده برای جابه‌جایی حجم بال"
       },
       "properties": {
-        "font-size": 11
+        "font-size": 16
       }
     },
     {
@@ -2063,6 +2061,133 @@
       },
       "properties": {
         "font-size": 14
+      }
+    },
+    {
+      "page": "home",
+      "breakpoint": "all",
+      "target": {
+        "kind": "component",
+        "selector": ".home-process-step > h3",
+        "label": "وسط‌چینی متن مراحل همکاری"
+      },
+      "properties": {
+        "text-align": "center",
+        "text-align-last": "center"
+      }
+    },
+    {
+      "page": "home",
+      "breakpoint": "all",
+      "target": {
+        "kind": "component",
+        "selector": ".home-process-step > p",
+        "label": "وسط‌چینی متن مراحل همکاری"
+      },
+      "properties": {
+        "text-align": "center",
+        "text-align-last": "center"
+      }
+    },
+    {
+      "page": "project-details",
+      "breakpoint": "all",
+      "target": {
+        "kind": "component",
+        "selector": ".project-details__product-card > .project-details__product-body > p.site-card__description",
+        "label": "توضیحات محصولات استفاده‌شده در پروژه"
+      },
+      "properties": {
+        "font-size": 16
+      }
+    },
+    {
+      "page": "contact",
+      "breakpoint": "all",
+      "range": {
+        "min": 1181,
+        "max": null
+      },
+      "target": {
+        "kind": "component",
+        "selector": ".branch-card__address",
+        "label": "آدرس تمام دفترها و کارخانه"
+      },
+      "properties": {
+        "font-size": 12
+      }
+    },
+    {
+      "page": "contact",
+      "breakpoint": "all",
+      "range": {
+        "min": 1180,
+        "max": 1382
+      },
+      "target": {
+        "kind": "component",
+        "selector": ".contact-benefits > .contact-benefits__grid > .benefit-item > h3.site-card__title",
+        "label": "عنوان مزایای همکاری در عرض میانی دسکتاپ"
+      },
+      "properties": {
+        "font-size": 14
+      }
+    },
+    {
+      "page": "contact",
+      "breakpoint": "all",
+      "range": {
+        "min": 1180,
+        "max": 1382
+      },
+      "target": {
+        "kind": "component",
+        "selector": ".contact-benefits > .contact-benefits__grid > .benefit-item > p.site-prose",
+        "label": "توضیحات مزایای همکاری در عرض میانی دسکتاپ"
+      },
+      "properties": {
+        "font-size": 14
+      }
+    },
+    {
+      "page": "expertise",
+      "breakpoint": "all",
+      "target": {
+        "kind": "role",
+        "key": "card-description"
+      },
+      "properties": {
+        "description-lines": 3,
+        "text-align": "justify",
+        "text-align-last": "right"
+      }
+    },
+    {
+      "page": "project-details",
+      "breakpoint": "all",
+      "target": {
+        "kind": "element",
+        "selector": ".project-details__stat > p.project-details__stat-description",
+        "label": "توضیحات دستاوردهای پروژه"
+      },
+      "properties": {
+        "description-lines": 2
+      }
+    },
+    {
+      "page": "*",
+      "breakpoint": "range",
+      "range": {
+        "min": 1025,
+        "max": 1480
+      },
+      "target": {
+        "kind": "component",
+        "selector": ".catalog-consultation__title",
+        "label": "عنوان CTA تصویری · بازهٔ ۱۰۲۵ تا ۱۴۸۰"
+      },
+      "properties": {
+        "font-size": 22
       }
     }
   ]

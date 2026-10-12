@@ -20,8 +20,17 @@ export function validateContentUrl(value, image = false) {
     const url = String(value ?? "");
     const scheme = url.match(/^([a-z][a-z\d+.-]*):/i)?.[1].toLowerCase();
     const allowed = image ? ["http", "https"] : ["http", "https", "mailto", "tel"];
-    if (/[\u0000-\u0020\u007f\\]/.test(url) || url.startsWith("//") || (scheme && !allowed.includes(scheme))) {
+    if (
+        url.length > 2048 ||
+        /[\u0000-\u0020\u007f\\]/.test(url) ||
+        url.startsWith("//") ||
+        (scheme && !allowed.includes(scheme))
+    ) {
         throw new Error(`Unsafe content URL: ${url}`);
+    }
+    if (scheme && ["http", "https"].includes(scheme)) {
+        const parsed = new URL(url);
+        if (parsed.username || parsed.password) throw new Error("Credentials are not allowed in public content URLs");
     }
     return url;
 }
@@ -52,7 +61,18 @@ export function renderComponent(name, data, root) {
                     .join("\n"),
             });
         case "consultation":
-            return render(name, data);
+            // Keep each icon and label together when structured benefits wrap.
+            // Existing string content continues to pass through HTML escaping.
+            return render(name, data, {
+                benefits: Array.isArray(data.benefits)
+                    ? data.benefits
+                          .map(
+                              (label) =>
+                                  `<span class="site-consultation__benefit"><span class="site-consultation__benefit-icon" aria-hidden="true">✓</span><span>${e(label)}</span></span>`,
+                          )
+                          .join(" ")
+                    : e(data.benefits),
+            });
         case "catalog-consultation":
             return render(name, data);
         case "product-cards":

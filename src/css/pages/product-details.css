@@ -193,7 +193,7 @@
 /* The hero overlap already reclaims its own space. Keep the next section in
  * normal flow instead of compensating with a second negative margin. */
 .product-details__content {
-    margin-top: var(--details-section-gap);
+    margin-top: clamp(var(--details-section-gap), 3vw, 48px);
 }
 
 body[data-page="product-details"] .product-details__description p.site-prose {

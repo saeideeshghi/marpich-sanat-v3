@@ -1,14 +1,27 @@
 /* Product image tools only: CSS rotateY is a 2D image flip, not a 3D model.
  * Failed images reveal adjacent data-image-fallback; fullscreen depends on browser support.
  */
-import "../../css/main.css";
-import "../../css/pages/product-details.css";
-import "../../css/components/content-flow.css";
-import "../../css/components/detail-technical.css";
-import "../../css/responsive.css";
 import { initSite } from "../main.js";
 
 initSite();
+
+// Razor/CMS renders a validated download link when a file exists. Until then,
+// an adapter can claim this event; the UI never requests a made-up document.
+document.querySelectorAll("[data-product-document]").forEach((button) => {
+    button.addEventListener("click", () => {
+        const request = new CustomEvent("product:document-request", {
+            bubbles: true,
+            cancelable: true,
+            detail: { kind: button.dataset.productDocument, button },
+        });
+        if (!button.dispatchEvent(request)) return;
+        const status = document.querySelector("[data-product-document-status]");
+        if (status) {
+            status.hidden = false;
+            status.textContent = "فایل فنی این محصول هنوز اضافه نشده است؛ برای دریافت آن با ما تماس بگیرید.";
+        }
+    });
+});
 
 const productImage = document.querySelector("[data-product-image]");
 const resetButton = document.querySelector("[data-view-reset]");

@@ -40,7 +40,7 @@ body[data-page="project-details"] .project-details__summary {
 body[data-page="project-details"] .project-details__cover {
     position: relative;
     width: 100%;
-    height: 250px;
+    height: var(--project-cover-min-height);
     overflow: hidden;
     border-radius: inherit;
     background: #e9edf3;
@@ -288,10 +288,6 @@ body[data-page="project-details"] .project-details__rating {
         border-radius: 12px;
     }
 
-    body[data-page="project-details"] .project-details__cover {
-        height: 390px;
-    }
-
     body[data-page="project-details"] .project-details__meta-grid {
         height: 80px;
         grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -347,10 +343,6 @@ body[data-page="project-details"] .project-details__rating {
     body[data-page="project-details"] .project-details__summary {
         margin-top: -144px;
         border-radius: 16px;
-    }
-
-    body[data-page="project-details"] .project-details__cover {
-        height: 500px;
     }
 
     body[data-page="project-details"] .project-details__meta-grid {
@@ -509,7 +501,7 @@ body[data-page="project-details"] .project-details__technical .details-card--pro
 body[data-page="project-details"] .project-details__technical .details-card--product {
     aspect-ratio: 1312 / 488;
     display: grid;
-    grid-template-rows: minmax(0, 1fr) 56px;
+    grid-template-rows: minmax(0, 1fr) minmax(56px, auto);
 }
 
 body[data-page="project-details"] .project-details__technical .details-card__body {
@@ -935,4 +927,38 @@ body[data-page="project-details"] .project-details__technical .details-card__not
 
 body[data-page="project-details"] .project-details__summary {
     margin-top: calc(-1 * var(--hero-summary-overlap, 144px));
+}
+
+/* Descriptive copy uses the page's 16px setting at every viewport. Keep
+ * table labels, headings and numeric results at their established sizes. */
+body[data-page="project-details"] main p.site-prose,
+body[data-page="project-details"] .project-details__stat p,
+body[data-page="project-details"] .project-details__testimonial-kicker-copy,
+body[data-page="project-details"] .project-details__testimonial blockquote,
+body[data-page="project-details"] .project-details__technical .details-card__note p,
+body[data-page="project-details"] .project-details__technical .extras-panel li {
+    font-size: var(--project-body-font-size);
+}
+
+/* Each gray tag grows from its content width to share the full row. Flex
+ * wrapping lets a remaining tag fill the following row without truncation. */
+body[data-page="project-details"] main .project-details__product-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+body[data-page="project-details"] main .project-details__product-tags > .project-details__product-meta-tag {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 100%;
+    background-color: #ece9e6;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+@media (min-width: 1181px) {
+    body[data-page="project-details"] .project-details__summary {
+        /* Retain the measured hero overlap and lift this summary 15px more. */
+        margin-top: calc(-1 * var(--hero-summary-overlap, 144px) - 15px);
+    }
 }

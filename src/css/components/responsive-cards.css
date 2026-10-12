@@ -205,26 +205,6 @@ body[data-page] main .article-card__link {
         object-fit: cover;
         padding: 0;
     }
-    body[data-page] main .home-products-actions {
-        display: grid;
-        grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-        align-items: stretch;
-        gap: 10px;
-        line-height: 1.7;
-    }
-    body[data-page] main .home-products-actions a {
-        min-height: 44px;
-        justify-content: space-between;
-        white-space: normal;
-        font-size: 14px;
-    }
-    body[data-page] main .home-products-actions span {
-        white-space: normal;
-        overflow-wrap: break-word;
-    }
-    body[data-page] main .home-products-actions a:last-child {
-        justify-self: end;
-    }
     body[data-page] main .home-expertise-grid .site-text-link {
         margin-right: auto;
     }
@@ -452,7 +432,9 @@ body[data-page]
 body[data-page="home"] main .home-article__media > img {
     transition:
         scale 320ms ease,
-        transform 320ms ease;
+        transform 320ms ease,
+        filter 320ms ease;
+    backface-visibility: hidden;
 }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
     body[data-page] main :is(.home-expertise-grid, .home-products-grid) > article:hover > div:first-child > img,

@@ -11,7 +11,7 @@
     overflow: hidden;
     border-radius: var(--card-radius);
     background: #fff;
-    box-shadow: var(--shadow-card);
+    box-shadow: none;
     scroll-margin-top: 24px;
 }
 .expertise-page__media {
@@ -46,20 +46,28 @@
 }
 /* The collapsed photograph is rounded; an expanded card joins its panel flush.
  * State rules also cover the artwork frame and both overlay corners. */
-body[data-page="expertise"] .expertise-page__card.is-open,
 body[data-page="expertise"] .expertise-page__card.is-open .expertise-page__media,
 body[data-page="expertise"] .expertise-page__card.is-open .expertise-page__artwork,
+body[data-page="expertise"] .expertise-page__card.is-open .expertise-page__media-image,
 body[data-page="expertise"] .expertise-page__card.is-open .expertise-page__media::after {
     border-bottom-left-radius: 0 !important;
     border-bottom-right-radius: 0 !important;
 }
+/* The supplied PNGs have rounded corners baked into their pixels. Extend only
+ * the open photograph below the seam, so those corners are clipped outside it.
+ * The outer card keeps its own rounded bottom around the details panel. */
+body[data-page="expertise"] .expertise-page__card.is-open .expertise-page__media-image {
+    height: calc(var(--expertise-image-height) + 6% + 4px);
+}
+/* Crop the thin edge baked into the artwork as well as removing the CSS
+ * shadow. A two-pixel bleed stays inside the existing clipping frame. */
 .expertise-page__media-image {
     position: absolute;
-    left: var(--expertise-image-left);
-    top: var(--expertise-image-top);
-    width: var(--expertise-image-width);
+    left: calc(var(--expertise-image-left) - 2px);
+    top: calc(var(--expertise-image-top) - 2px);
+    width: calc(var(--expertise-image-width) + 4px);
     max-width: none;
-    height: var(--expertise-image-height);
+    height: calc(var(--expertise-image-height) + 4px);
     object-fit: cover;
     object-position: center;
 }
@@ -111,6 +119,21 @@ body[data-page="expertise"] #site-execution {
     margin-block: 12px;
     background: #79b6ed;
 }
+/* Three-line service summaries; a stacked caption keeps its full column. */
+body[data-page="expertise"]
+    .expertise-page__card
+    .expertise-page__media-content
+    > .expertise-page__card-description:not([hidden]) {
+    width: 100%;
+    max-width: 100%;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    max-height: 3lh;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 .expertise-page__more-link {
     display: inline-flex;
     align-items: center;
@@ -131,7 +154,7 @@ body[data-page="expertise"] #site-execution {
 .expertise-page__details {
     padding: 28px 40px;
     scroll-margin-top: 24px;
-    border-top: 1px solid #e6edf5;
+    border-top: 0;
 }
 .expertise-page__details .site-prose {
     margin: 0;
@@ -264,5 +287,20 @@ body[data-page="expertise"] #site-execution {
     }
     body[data-page="expertise"] .expertise-page__media-content {
         padding: 18px 16px;
+    }
+}
+
+/* Include 1179px explicitly, even though the shared tablet layout ends there. */
+@media (min-width: 1179px) {
+    body[data-page="expertise"] .expertise-page__media-content {
+        width: 75%;
+    }
+    body[data-page="expertise"]
+        .expertise-page__card
+        .expertise-page__media-content
+        > .expertise-page__card-description:not([hidden]) {
+        width: 51%;
+        max-width: 51%;
+        text-align-last: right !important;
     }
 }

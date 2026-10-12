@@ -667,9 +667,30 @@ body[data-page="industry-textile"] .industry-textile__products-grid .site-card__
 
 .industry-textile__faq-more {
     display: inline-flex;
+    align-items: center;
+    gap: 8px;
     margin-top: 1rem;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    font-family: inherit;
     font-size: 0.875rem;
     font-weight: 600;
+    cursor: pointer;
+}
+.industry-textile__faq-more[hidden] {
+    display: none;
+}
+.industry-textile__faq-more i {
+    transition: transform 180ms ease;
+}
+.industry-textile__faq-more[aria-expanded="true"] i {
+    transform: rotate(180deg);
+}
+@media (prefers-reduced-motion: reduce) {
+    .industry-textile__faq-more i {
+        transition: none;
+    }
 }
 
 .industry-textile .catalog-consultation {

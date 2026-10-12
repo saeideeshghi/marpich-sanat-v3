@@ -1,11 +1,13 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { resolve, relative } from "node:path";
 import { preparePublicAssets } from "../build/public-assets.js";
+import { optimizePublicAssets } from "../build/optimized-assets.js";
 import { pages } from "../build/pages.js";
 import { renderPage } from "../build/html-partials.js";
 
 const root = resolve(import.meta.dirname, "..");
 const publicRoot = preparePublicAssets(root);
+await optimizePublicAssets(root, publicRoot);
 const references = new Set();
 
 function collectReferences(source) {

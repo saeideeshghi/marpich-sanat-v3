@@ -49,6 +49,23 @@
     padding-top: 108px;
 }
 
+/* Match the About hero rule, without changing other page headings. */
+.contact-hero__accent {
+    display: block;
+    width: 42px;
+    height: 2px;
+    margin-top: 8px;
+    border-radius: 999px;
+    background: #f76e11;
+}
+@media (max-width: 767px) {
+    .contact-hero__accent {
+        width: 24px;
+        height: 1.5px;
+        margin-top: 5px;
+    }
+}
+
 .contact-branches {
     position: relative;
     z-index: 2;
@@ -91,7 +108,7 @@
 }
 
 .contact-whatsapp {
-    direction: ltr;
+    direction: rtl;
 }
 
 /* Branch typography tuned to the supplied desktop reference. */
@@ -790,12 +807,7 @@ body[data-page="contact"] .contact-benefits .benefit-item :is(h3, p) {
 }
 
 .contact-main {
-    padding-bottom: 64px;
-}
-@media (max-width: 1179px) {
-    .contact-main {
-        padding-bottom: 24px;
-    }
+    padding-bottom: 0;
 }
 
 /* Keep the intrinsic portrait maps from setting the height of tablet cards. */
@@ -869,14 +881,42 @@ body[data-page="contact"] .contact-benefits .benefit-item :is(h3, p) {
     margin-inline: 0;
 }
 
+/* Wrapped descriptions grow below the icon/title rows instead of vertically
+ * recentering each entire card. Keep the established centered captions. */
+body[data-page="contact"] .contact-benefits .benefit-item {
+    justify-content: flex-start;
+    align-self: start;
+}
+@media (min-width: 1180px) {
+    body[data-page="contact"] .contact-benefits__grid {
+        align-items: start;
+        align-content: center;
+    }
+    @supports (grid-template-rows: subgrid) {
+        body[data-page="contact"] .contact-benefits__grid {
+            grid-template-rows: max-content max-content max-content;
+            row-gap: 0;
+        }
+        body[data-page="contact"] .contact-benefits__grid > .benefit-item {
+            display: grid !important;
+            grid-row: span 3;
+            grid-template-rows: subgrid;
+            justify-items: center;
+            align-items: start !important;
+            justify-self: stretch !important;
+            min-width: 0;
+            min-height: 0;
+        }
+    }
+}
+
 /* An office address is complete contact information, not a clamped excerpt. */
 body[data-page="contact"] .branch-card__address {
     font-size: var(--card-description-font-size);
     line-height: 1.85;
 }
 
-/* Factory and cooperation from the supplied references are available at every
- * viewport. Keep existing office/form/benefit styling untouched. */
+/* Factory and cooperation are available at every viewport. */
 body[data-page="contact"] .contact-branches > .branch-card--factory {
     display: grid !important;
     grid-column: 1 / -1;
@@ -908,12 +948,13 @@ body[data-page="contact"] .contact-cooperation__heading::before,
 body[data-page="contact"] .contact-cooperation__heading::after {
     width: 40px;
     height: 1px;
-    background: linear-gradient(90deg, transparent, #f76e11);
+    background: #f76e11;
+    clip-path: polygon(0 50%, 100% 0, 100% 100%);
     content: "";
 }
 
 body[data-page="contact"] .contact-cooperation__heading::after {
-    transform: scaleX(-1);
+    transform: rotate(180deg);
 }
 
 body[data-page="contact"] .contact-cooperation__intro {
@@ -1014,18 +1055,29 @@ body[data-page="contact"] #contact-form {
 }
 
 @media (min-width: 1180px) {
-    body[data-page="contact"] .contact-branches > .branch-card--factory {
-        position: relative;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    /* Desktop reference: three equal cards, with a landscape map above the
+     * contact details. Tablet/phone layouts keep their own existing rules. */
+    body[data-page="contact"] .contact-branches {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
-
-    /* The portrait office map must fill the factory's left half without its
-     * intrinsic aspect ratio stretching this full-width card. */
-    body[data-page="contact"] .branch-card--factory > .branch-card__map {
-        position: absolute;
-        inset: 0 auto 0 0;
-        width: 50%;
+    body[data-page="contact"] .contact-branches > .branch-card {
+        grid-column: auto;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: clamp(140px, 13vw, 190px) minmax(0, 1fr);
+    }
+    body[data-page="contact"] .branch-card > div {
+        grid-column: 1;
+        grid-row: 2;
+    }
+    body[data-page="contact"] .branch-card > .branch-card__map {
+        position: static;
+        inset: auto;
+        grid-column: 1;
+        grid-row: 1;
+        width: 100%;
+        height: 100% !important;
         min-height: 0 !important;
+        object-position: 50% 50%;
     }
 
     body[data-page="contact"] .contact-cooperation {
@@ -1038,5 +1090,12 @@ body[data-page="contact"] #contact-form {
 
     body[data-page="contact"] .contact-cooperation__item p {
         font-size: 16px;
+    }
+}
+
+@media (max-width: 616px) {
+    body[data-page="contact"] .branch-card--factory > .branch-card__map {
+        height: clamp(200px, 56vw, 260px) !important;
+        object-position: 50% 55%;
     }
 }

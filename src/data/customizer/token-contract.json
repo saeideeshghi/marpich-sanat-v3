@@ -97,24 +97,11 @@
     "max": 10,
     "property": "line-height"
   },
-  "--articles-backdrop-min-height": {
-    "kind": "length",
-    "selectors": [".articles-hero"],
-    "editable": true,
-    "property": "width"
-  },
   "--articles-blue-color": {
     "kind": "color",
     "selectors": [".articles-page"],
     "editable": true,
     "property": "color"
-  },
-  "--articles-heading-bottom": {
-    "kind": "length",
-    "selectors": [],
-    "editable": false,
-    "reason": "از انتهای واقعی عنوان مقالات محاسبه می‌شود؛ ارتفاع زمینه را با articles-backdrop-min-height تنظیم کن.",
-    "property": "width"
   },
   "--articles-navy-color": {
     "kind": "color",
@@ -133,13 +120,6 @@
     "selectors": [".articles-page"],
     "editable": true,
     "property": "color"
-  },
-  "--articles-search-backdrop-height": {
-    "kind": "length",
-    "selectors": [],
-    "editable": false,
-    "reason": "از موقعیت فرم و دو سوم ارتفاع آن محاسبه می‌شود؛ خروجی اندازه‌گیری است و در هر عرض خودکار تغییر می‌کند.",
-    "property": "width"
   },
   "--auth-muted-text-color": {
     "kind": "color",
@@ -560,13 +540,18 @@
   },
   "--hero-content-padding-top-mobile": {
     "kind": "length",
-    "selectors": ["body[data-page]", "body[data-page=\"project-details\"]", "body[data-page=\"product-details\"]"],
+    "selectors": [
+      "body[data-page]",
+      "body[data-page=\"contact\"]",
+      "body[data-page=\"project-details\"]",
+      "body[data-page=\"product-details\"]"
+    ],
     "editable": true,
     "property": "width"
   },
   "--hero-content-padding-top-tablet": {
     "kind": "length",
-    "selectors": ["body[data-page]", "body[data-page=\"home\"]"],
+    "selectors": ["body[data-page]", "body[data-page=\"home\"]", "body[data-page=\"contact\"]"],
     "editable": true,
     "property": "width"
   },
@@ -695,6 +680,13 @@
       "#hero-contact"
     ],
     "editable": true,
+    "property": "width"
+  },
+  "--hero-search-backdrop-height": {
+    "kind": "length",
+    "selectors": [],
+    "editable": false,
+    "reason": "مرز زمینه به‌صورت خودکار تا نیمهٔ ارتفاع فرم جستجو محاسبه می‌شود؛ فاصلهٔ فرم را در استایل هیرو تغییر دهید.",
     "property": "width"
   },
   "--hero-summary-overlap": {
@@ -912,6 +904,38 @@
     "selectors": [".home-partners"],
     "editable": false,
     "reason": "مدت حرکت از عرض نوار محاسبه می‌شود؛ این مقدار خروجی محاسبه است.",
+    "property": "width"
+  },
+  "--pcm-blue": {
+    "kind": "color",
+    "selectors": [".pcm-root"],
+    "editable": true,
+    "property": "color"
+  },
+  "--pcm-height": {
+    "kind": "length",
+    "selectors": [".pcm-root"],
+    "editable": false,
+    "reason": "از motion.heroHeight در src/data/product-motion/config.json تنظیم کن؛ موتور انیمیشن مقدار را هنگام راه‌اندازی و تغییر تنظیمات روی باکس انتخاب‌شده می‌نویسد.",
+    "property": "width"
+  },
+  "--pcm-ink": {
+    "kind": "color",
+    "selectors": [".pcm-root"],
+    "editable": true,
+    "property": "color"
+  },
+  "--pcm-orange": {
+    "kind": "color",
+    "selectors": [".pcm-root"],
+    "editable": true,
+    "property": "color"
+  },
+  "--pcm-radius": {
+    "kind": "length",
+    "selectors": [".pcm-root"],
+    "editable": false,
+    "reason": "از motion.heroRadius در src/data/product-motion/config.json تنظیم کن؛ موتور انیمیشن این مقدار را برای باکس انتخاب‌شده و لایهٔ متحرک هماهنگ می‌کند.",
     "property": "width"
   },
   "--project-body-font-size": {
@@ -1158,7 +1182,10 @@
   },
   "--site-pattern-crop-height": {
     "kind": "length",
-    "selectors": [".articles-hero", ".contact-hero"],
+    "selectors": [
+      "body[data-page] :is(.products-hero, .industries-hero, .air-handling__hero, .articles-hero)",
+      ".contact-hero"
+    ],
     "editable": true,
     "property": "width"
   },

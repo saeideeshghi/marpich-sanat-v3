@@ -56,7 +56,7 @@ npm run dev
 </tbody></table></div>
 <p>پوشه‌های تصاویر و فونت‌های پروژهٔ فعلی را هنگام جایگزینی این ZIP نگه دارید. این تحویل سورس است؛ node_modules، dist، فایل‌های حجیم تصاویر و فایل‌های آزمایشی در آن قرار نمی‌گیرند. خروجی Build بعد از اضافه‌بودن Assetهای واقعی ساخته می‌شود.</p>
 <h2 id="chapter-2"><span class="section-dot"></span>۲. مسیر پردازش صفحه</h2>
-<p>فهرست صفحات در build/pages.js ثبت شده است. Vite هر فایل HTML ریشه را می‌خواند؛ build/html-partials.js کامپوننت‌های مشترک و دادهٔ JSON همان صفحه را جایگزین includeها می‌کند. سپس Vite ورودی JS صفحه را Bundle و CSS آن را پردازش می‌کند. پلاگین کاستومایزر CSS تنظیمات ذخیره‌شده را به خروجی اضافه می‌کند.</p>
+<p>فهرست صفحات در build/pages.js ثبت شده است. Vite هر فایل HTML ریشه را می‌خواند؛ build/html-partials.js کامپوننت‌های مشترک و دادهٔ JSON همان صفحه را جایگزین includeها می‌کند. سپس Vite ورودی JS و دو لینک CSS در head را پردازش می‌کند؛ استایل‌ها به اجرای JS وابسته نیستند. پلاگین کاستومایزر CSS تنظیمات ذخیره‌شده را به خروجی اضافه می‌کند.</p>
 <pre><code class="language-html">&lt;!-- @include header --&gt;
 &lt;!-- @include product-cards products --&gt;
 &lt;!-- @include footer --&gt;
@@ -384,7 +384,7 @@ npm run dev
 <td>Min/Max شامل خود مرزها</td>
 </tr>
 </tbody></table></div>
-<p>ورودی صفحه معمولاً main.css، CSS اختصاصی، content-flow و سپس responsive.css را Import می‌کند. درباره ما، about-team.css را بعد از لایهٔ ریسپانسیو وارد می‌کند تا هندسهٔ قاب مستقل بماند. در خروجی، template-overrides.css بعد از CSSهای اصلی بارگذاری می‌شود. قوانین ذخیره‌شده از !important استفاده می‌کنند؛ تغییر فایل پایه ممکن است زیر یک تنظیم ذخیره‌شده دیده نشود.</p>
+<p>head صفحه ابتدا main.css و سپس CSS ورودی در src/css/entries را لینک می‌کند. ترتیب CSS اختصاصی، content-flow و responsive.css در همین ورودی حفظ می‌شود. درباره ما، about-team.css را بعد از لایهٔ ریسپانسیو وارد می‌کند تا هندسهٔ قاب مستقل بماند. در خروجی، template-overrides.css بعد از CSSهای اصلی بارگذاری می‌شود. قوانین ذخیره‌شده از !important استفاده می‌کنند؛ تغییر فایل پایه ممکن است زیر یک تنظیم ذخیره‌شده دیده نشود.</p>
 <p>body[data-page] محدودهٔ امن تغییرات اختصاصی است. کلاس CSS را برای ظاهر و data-* را برای رفتار نگه دارید. برای تغییر یک بخش از یک صفحه، قانون را روی همان صفحه و بخش بنویسید؛ Header، Footer و فرم‌های مشترک را بدون بررسی سایر مصرف‌کننده‌ها تغییر ندهید.</p>
 <h2 id="chapter-7"><span class="section-dot"></span>۷. تنظیم جدید تصویر درباره ما</h2>
 <p>در Customizer، صفحهٔ «درباره ما» را انتخاب کنید. زیر «تصویر اصلی درباره ما»، پنل «تنظیم سریع تصویر در هر اندازه» قرار دارد. ابتدا همهٔ اندازه‌ها یا یکی از دسکتاپ، تبلت و موبایل را انتخاب کنید؛ هر فیلد پس از پایان ویرایش یا تغییر انتخاب اعمال می‌شود.</p>
@@ -563,6 +563,7 @@ npm run dev
 <p>۲. AssetResolver برای صفحه، file و css ورودی و css تمام imports آن را بازگشتی بخواند؛ فایل CSS هر چانک مشترک نیز لازم است. نام Hash فایل‌ها را در View ثابت ننویسید.</p>
 <p>۳. CSSهای صفحه و وابستگی‌ها را بدون تکرار درج کنید. لینک ثابت assets/customizer/template-overrides.css را پس از آن‌ها قرار دهید تا Overrideها حفظ شوند. سپس script نوع module برای file ورودی اضافه شود. modulepreload برای imports اختیاری است.</p>
 <p>۴. Assetها و Manifest را در یک Release منتقل کنید؛ HTML یا Manifest جدید کنار فایل‌های قبلیِ حذف‌شده می‌تواند 404 بسازد. در زمان Deploy، قابلیت نمایش خطا یا بررسی نبود entry را در AssetResolver قرار دهید.</p>
+<p>CSS اولیه در نسخهٔ فعلی دو لینک مستقیم در head دارد: src/css/main.css و src/css/entries/&lt;page&gt;.css. نام و ترتیب CSSهای هش‌دار را از HTML ساخته‌شدهٔ همان صفحه و Manifest واقعی استخراج کنید؛ تنها دنبال‌کردن importهای JS برای جمع‌آوری CSS کافی نیست. لینک‌های CSS را در head بگذارید و بارگذاری آن‌ها را به JavaScript نسپارید.</p>
 <pre><code class="language-cshtml">@foreach (var css in Model.PageAssets.Css)
 {
     &lt;link rel=&quot;stylesheet&quot; href=&quot;@Url.Content(&quot;~/&quot; + css)&quot; /&gt;

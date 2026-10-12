@@ -5,6 +5,12 @@ export function continuousLoopProgress(value, easing = "linear") {
     return value + (0.35 * Math.sin(value * Math.PI * 2)) / (Math.PI * 2);
 }
 
+// A scene-wide tile left a long dark gap inside the faded/cropped artwork.
+// Keep the authored band width and repeat it at most two band-widths apart.
+export function repeatingLightSpan(sceneSpan, width) {
+    return Math.min(Math.max(1, sceneSpan), Math.max(1, width) * 2);
+}
+
 // Keep the existing 260-unit light band inside a scene-sized repeating tile.
 // Transparent tile edges make translations by exactly one tile visually equal.
 export function repeatingLightStops(span, width, lightColor, coreColor) {

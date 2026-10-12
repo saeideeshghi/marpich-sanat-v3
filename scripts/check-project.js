@@ -1,10 +1,24 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { resolve } from "node:path";
+import { dirname, relative, resolve } from "node:path";
 import { pages } from "../build/pages.js";
 import { renderPage } from "../build/html-partials.js";
 
 const root = resolve(import.meta.dirname, "..");
+const legacyFiles = new Set(JSON.parse(readFileSync(resolve(root, "scripts/legacy-files.json"), "utf8")));
+const cssRoot = resolve(root, "src/css");
+for (const name of readdirSync(cssRoot, { recursive: true }).filter((name) => name.endsWith(".css"))) {
+    const stylesheet = resolve(cssRoot, name);
+    for (const [, dependency] of readFileSync(stylesheet, "utf8").matchAll(/@import\s+["'](\.[^"']+)["']/g)) {
+        const target = resolve(dirname(stylesheet), dependency);
+        const projectPath = relative(root, target).replaceAll("\\", "/");
+        assert(existsSync(target), `${relative(root, stylesheet)}: missing stylesheet ${dependency}`);
+        assert(
+            !legacyFiles.has(projectPath),
+            `${projectPath}: imported stylesheet must not be deleted during publication`,
+        );
+    }
+}
 const rendered = new Map(
     pages.map((page) => [page.file, renderPage(readFileSync(resolve(root, page.file), "utf8"), page.file, root)]),
 );
@@ -27,8 +41,12 @@ for (const page of pages) {
     assert(source.includes(`/src/js/pages/${page.name}.js`), prefix + "wrong entry");
     assert(existsSync(resolve(root, `src/css/pages/${page.name}.css`)), prefix + "missing page CSS");
     const entry = readFileSync(resolve(root, `src/js/pages/${page.name}.js`), "utf8");
-    assert(entry.includes('"../../css/main.css"'), prefix + "missing shared stylesheet import");
-    assert(entry.includes(`"../../css/pages/${page.name}.css"`), prefix + "missing page stylesheet import");
+    const head = source.match(/<head>([\s\S]*?)<\/head>/)?.[1] || "";
+    assert(head.includes('href="/src/css/main.css"'), prefix + "foundation CSS must load from head");
+    assert(head.includes(`href="/src/css/entries/${page.name}.css"`), prefix + "page CSS must load from head");
+    const stylesheet = readFileSync(resolve(root, `src/css/entries/${page.name}.css`), "utf8");
+    assert(stylesheet.includes(`@import "../pages/${page.name}.css"`), prefix + "missing page stylesheet import");
+    assert(!/import\s+["'][^"']+\.css["']/.test(entry), prefix + "CSS must not wait for JavaScript");
     assert.equal((entry.match(/\binitSite\(\)/g) || []).length, 1, prefix + "initialize shared behavior once");
     assert(!html.includes("@include"), prefix + "unresolved partial");
     assert(!html.includes("/src/assets/"), prefix + "old asset path");
@@ -55,6 +73,10 @@ for (const page of pages) {
             continue;
         }
         if (/^(https?:|tel:|mailto:|\/assets\/)/.test(href)) continue;
+        if (/^\/src\/css\/[^?#]+\.css$/.test(href)) {
+            assert(existsSync(resolve(root, href.slice(1))), prefix + `missing stylesheet ${href}`);
+            continue;
+        }
         const [path, hash] = href.split("#");
         const target = path === "/" ? "index.html" : path.replace(/^\//, "") || page.file;
         assert(rendered.has(target), prefix + `missing local target ${href}`);

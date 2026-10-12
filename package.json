@@ -7,11 +7,15 @@
     "dev": "vite",
     "customize": "node scripts/start-customizer.js",
     "build": "vite build",
+    "build:backend": "vite build --mode backend && node scripts/check-backend.js",
     "build:pages": "vite build --mode pages && node scripts/check-pages.js",
     "preview": "vite preview",
+    "preview:backend": "vite preview --mode backend",
     "preview:pages": "vite preview --mode pages",
     "check": "node scripts/check-project.js && node scripts/check-components.js && node scripts/check-certificate-assets.js && node scripts/check-pattern-motion.js && node scripts/check-handoff.js && node scripts/check-customizer.js && node scripts/check-view-tools.js && node scripts/check-token-editor.js && node scripts/check-platform.js && node scripts/check-publish.js && node scripts/check-github.js",
     "check:assets": "node scripts/check-assets.js",
+    "check:security": "node scripts/check-security.js && node scripts/check-svg.js",
+    "check:performance": "node scripts/check-performance.js",
     "check:pages": "node scripts/check-pages.js",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -23,7 +27,9 @@
   "devDependencies": {
     "postcss": "^8.5.28",
     "prettier": "^3.9.9",
-    "vite": "^8.3.0"
+    "sharp": "^0.35.5",
+    "vite": "^8.3.0",
+    "wawoff2": "^2.0.1"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.3.1",

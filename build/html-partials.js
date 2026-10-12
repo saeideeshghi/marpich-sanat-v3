@@ -41,7 +41,30 @@ export function htmlPartials(root) {
         transformIndexHtml: {
             order: "pre",
             handler(html, context) {
-                return renderPage(html, context.filename, root);
+                let rendered = renderPage(html, context.filename, root);
+                if (!pages.some((page) => page.file === basename(context.filename))) return rendered;
+                rendered = rendered.replace(/<img\b[^>]*>/g, (tag) => {
+                    // Only the main home hero gets an explicit high priority.
+                    // Avoid starving critical CSS with dozens of eager photos.
+                    if (/\bclass=["'][^"']*\bhero-image\b/.test(tag) && !/\bfetchpriority=/.test(tag))
+                        tag = tag.replace(/\s*\/?>(?=$)/, ' fetchpriority="high" />');
+                    // Listing photos below the hero need not compete with the
+                    // initial CSS/font download. Preserve explicit CMS choices.
+                    const listing =
+                        /\b(?:site-card__image|product-card__image|article-card__image|about-expertise-card__image|industry-feature__image)\b/.test(
+                            tag,
+                        );
+                    if (listing && !/\b(?:loading|data-product-image)=?/.test(tag))
+                        tag = tag.replace(/\s*\/?>(?=$)/, ' loading="lazy" />');
+                    if (!/\bdecoding=/.test(tag)) tag = tag.replace(/\s*\/?>(?=$)/, ' decoding="async" />');
+                    return tag;
+                });
+                // Fonts are selected by actual CSS usage. An unconditional
+                // preload downloads an unused weight on some backend views.
+                return rendered.replace(
+                    "</head>",
+                    '<link rel="icon" type="image/svg+xml" href="/assets/logos/LOGO.svg" />\n<link rel="preload" as="image" href="/assets/decorations/page-pattern.svg" />\n</head>',
+                );
             },
         },
         configureServer(server) {

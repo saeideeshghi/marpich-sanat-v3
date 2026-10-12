@@ -2,10 +2,6 @@
  * No upload/API is performed by this module. attachment is optional, max 20 MiB;
  * server validation/storage/confirmation remain the backend adapter responsibility.
  */
-import "../../css/main.css";
-import "../../css/pages/contact.css";
-import "../../css/components/content-flow.css";
-import "../../css/responsive.css";
 import { initSite } from "../main.js";
 
 function initFileUpload() {
@@ -156,9 +152,13 @@ if (contactIntro && contactHero && contactBranches) {
     const fitContactBackdrop = () => {
         const top = contactHero.getBoundingClientRect().top;
         const introBottom = contactIntro.getBoundingClientRect().bottom - top;
-        const firstCard = contactBranches.querySelector(".branch-card")?.getBoundingClientRect();
-        const overlap = window.innerWidth < 1180 ? 0.5 : 0.42;
-        const bottom = firstCard ? firstCard.top - top + firstCard.height * overlap : introBottom + 28;
+        const firstCard = contactBranches.querySelector(".branch-card");
+        const desktop = window.innerWidth >= 1180;
+        const overlapBox = (
+            desktop ? firstCard?.querySelector(".branch-card__map") : firstCard
+        )?.getBoundingClientRect();
+        const overlap = desktop ? 0.62 : 0.5;
+        const bottom = overlapBox ? overlapBox.top - top + overlapBox.height * overlap : introBottom + 28;
         const value = `${Math.ceil(Math.max(introBottom + 28, bottom))}px`;
         if (contactHero.style.getPropertyValue("--contact-intro-background") !== value)
             contactHero.style.setProperty("--contact-intro-background", value);

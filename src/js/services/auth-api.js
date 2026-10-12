@@ -3,7 +3,7 @@
  * See README.md for the request/response contract.
  */
 export const isAuthPreview = import.meta.env.DEV && import.meta.env.VITE_AUTH_MODE !== "api";
-const apiEnabled = import.meta.env.VITE_AUTH_MODE === "api";
+const apiEnabled = import.meta.env.MODE === "backend" || import.meta.env.VITE_AUTH_MODE === "api";
 const baseURL = (import.meta.env.VITE_AUTH_API_BASE || "/api/auth").replace(/\/$/, "");
 
 export class AuthError extends Error {
@@ -29,12 +29,21 @@ async function request(action, payload, signal) {
     if (isAuthPreview) return previewResponse(action, payload);
     if (!apiEnabled) throw new AuthError("این سرویس هنوز فعال نشده است؛ لطفاً از راه‌های تماس با ما استفاده کنید.");
 
+    // Credentials are submitted only to the backend that served this page.
+    // Use a same-origin reverse proxy when the auth service is separate.
+    const endpoint = new URL(`${baseURL}/${action}`, location.href);
+    if (endpoint.origin !== location.origin || endpoint.username || endpoint.password)
+        throw new AuthError("نشانی سرویس ورود باید متعلق به همین سایت باشد.");
+
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+    if (!csrfToken?.trim())
+        throw new AuthError("امکان ارسال درخواست فعلاً فراهم نیست؛ لطفاً کمی بعد دوباره تلاش کنید.");
     let response;
     try {
-        response = await fetch(`${baseURL}/${action}`, {
+        response = await fetch(endpoint.href, {
             method: "POST",
             credentials: "same-origin",
+            redirect: "error",
             headers: {
                 "Content-Type": "application/json",
                 ...(csrfToken ? { "X-CSRF-TOKEN": csrfToken } : {}),

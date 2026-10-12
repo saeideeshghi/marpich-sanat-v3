@@ -199,6 +199,22 @@
     margin-top: -35px;
 }
 
+/* Equal wide tracks for the brand and contact columns. The two navigation
+ * tracks are equally narrower; keep the existing gaps and brand insets. */
+@media (min-width: 1180px) {
+    .site-footer__layout {
+        grid-template-columns: minmax(0, 1.3fr) repeat(2, minmax(0, 0.8fr)) minmax(0, 1.3fr);
+    }
+    .site-footer__brand {
+        padding-inline-start: clamp(12px, 1.2vw, 20px);
+        padding-inline-end: clamp(24px, 2vw, 36px);
+    }
+    .site-footer__navigation a i {
+        position: relative;
+        left: -60px;
+    }
+}
+
 @media (max-width: 1179px) {
     .site-footer__inner {
         width: calc(100% - 64px);

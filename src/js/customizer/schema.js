@@ -51,7 +51,7 @@ export const TARGETS = [
         key: "body-text",
         label: "متن‌ها و توضیحات کامل",
         selector:
-            ":is(main p, main li, .site-prose):not(.featured-card__description):not(.site-card__description):not(.site-hero__description):not(.site-hero__eyebrow):not(.site-card__media-tag):not(.site-card__meta-tag):not(.site-card__status-tag):not(.project-details__testimonial-kicker-copy):not(:where(.project-details__reference-copy))",
+            ":is(main p, main li, .site-prose):not(.featured-card__description):not(.site-card__description):not(.site-hero__description):not(.site-hero__eyebrow):not(.site-card__media-tag):not(.site-card__meta-tag):not(.site-card__status-tag):not(.project-details__testimonial-kicker-copy):not(:where(.project-details__reference-copy, .home-process-step, .home-process-step > p))",
         group: "محتوا",
     },
     { key: "card", label: "همه باکس‌ها · ارتفاع و فاصله", selector: ".site-card", group: "باکس‌ها" },

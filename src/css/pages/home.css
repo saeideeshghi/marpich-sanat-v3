@@ -1,3 +1,15 @@
+/* Wide product cards keep their two actions together instead of stretching
+ * the space between them. Smaller breakpoints retain their current layout. */
+@media (min-width: 1475px) {
+    body[data-page="home"] #products .home-products-actions {
+        justify-content: center;
+        column-gap: 20px;
+    }
+    body[data-page="home"] #products .home-products-actions a:last-child {
+        justify-self: start;
+    }
+}
+
 /* Home Hero: the supplied artwork has a transparent lower edge.
  * A definite height and 15% vertical overscan keep that edge outside the canvas.
  * Tablet/mobile use wider text columns; the photograph remains on the left. */
@@ -428,7 +440,9 @@
 .home-process-step {
     position: relative;
     min-width: 0;
+    justify-self: stretch;
     text-align: center;
+    text-align-last: center;
     padding-inline: 8px;
 }
 .home-process-icon {
@@ -443,23 +457,37 @@
     font-size: 15px;
     font-weight: 500;
     line-height: 1.7;
+    text-align: center;
+    text-align-last: center;
 }
 .home-process-step p {
     margin: 4px 0 0;
     font-size: 14px;
     line-height: 1.8;
+    text-align: center;
+    text-align-last: center;
+}
+body[data-page="home"] .home-process-step > :is(h3, p) {
+    text-align: center;
+    text-align-last: center;
 }
 .home-process-arrow {
     position: absolute;
-    top: calc(var(--icon-size) / 2 - 6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: calc(var(--icon-size) / 2);
     left: -50%;
     width: 100%;
+    height: 12px;
     padding-inline: calc(var(--icon-size) / 2 + 18px);
+    transform: translateY(-50%);
     pointer-events: none;
 }
 .home-process-arrow img {
+    display: block;
     width: 100%;
-    height: 12px;
+    height: 100%;
     object-fit: fill;
 }
 @media (max-width: 639px) {
@@ -480,7 +508,7 @@
         display: none;
     }
     .home-process-arrow {
-        top: calc(var(--icon-size) / 2 - 3px);
+        height: 6px;
         padding-inline: calc(var(--icon-size) / 2 + 5px);
     }
     .home-process-arrow img {
@@ -566,12 +594,12 @@
 
     /* Keep the full paragraph in the DOM; show a two-line excerpt on phones. */
     body[data-page="home"] main .home-article__row {
-        grid-template-columns: clamp(96px, 27vw, 128px) minmax(0, 1fr) 44px;
+        grid-template-columns: clamp(104px, 30vw, 140px) minmax(0, 1fr) 44px;
         gap: 8px;
         padding-block: 16px;
     }
     .home-article__media {
-        aspect-ratio: 1;
+        aspect-ratio: 1.15;
     }
     .home-article__media > img {
         position: absolute;
@@ -595,7 +623,19 @@
 }
 @media (max-width: 359px) {
     body[data-page="home"] main .home-article__row {
-        grid-template-columns: 88px minmax(0, 1fr) 44px;
+        grid-template-columns: 96px minmax(0, 1fr) 44px;
+    }
+}
+
+/* A slightly wider photograph without stretching the source pixels. */
+@media (min-width: 640px) and (max-width: 1023px) {
+    body[data-page="home"] main .home-article__row {
+        grid-template-columns: 155px minmax(0, 1fr) 28px;
+    }
+}
+@media (min-width: 1024px) {
+    body[data-page="home"] main .home-article__row {
+        grid-template-columns: 190px minmax(0, 1fr) 115px;
     }
 }
 

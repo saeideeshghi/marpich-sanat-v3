@@ -56,25 +56,44 @@ body[data-page]
     min-width: 0;
 }
 
-.home-products-actions {
+body[data-page="home"] main .home-products-actions {
     display: grid;
-    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    grid-template-columns: max-content max-content;
     align-items: stretch;
+    justify-content: space-between;
     gap: 10px;
     padding-top: 14px;
 }
-.home-products-actions a {
+body[data-page="home"] main .home-products-actions a {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
     min-height: 44px;
-    /* justify-content: space-between; */
     white-space: normal;
     line-height: 1.7;
+    align-content: center;
 }
-.home-products-actions a:last-child {
+body[data-page="home"] main .home-products-actions a:last-child {
     justify-self: end;
 }
-.home-products-actions span {
+body[data-page="home"] main .home-products-actions span {
+    display: inline;
     white-space: normal;
     overflow-wrap: break-word;
+}
+body[data-page="home"] main .home-products-actions i {
+    display: inline-block;
+    margin-inline-start: 4px;
+    vertical-align: middle;
+}
+@media (max-width: 1227px) {
+    body[data-page="home"] main .home-products-actions {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
+    }
+    body[data-page="home"] main .home-products-actions a:last-child {
+        justify-self: start;
+    }
 }
 .projects-page__testimonials-subtitle {
     min-width: 0;
@@ -140,6 +159,21 @@ body[data-page] button.site-text-link {
     border-bottom: 0;
 }
 
+/* Catalog load-more labels show one underline only while hovered. */
+body:is([data-page="products"], [data-page="air-handling"], [data-page="industries"])
+    button.catalog-more__button.site-text-link
+    > .site-text-link__label,
+body[data-page="articles"] .articles-load-more > button > .site-text-link__label {
+    border-bottom: 0;
+    text-decoration: none;
+}
+body:is([data-page="products"], [data-page="air-handling"], [data-page="industries"])
+    button.catalog-more__button.site-text-link:is(:hover, :focus-visible)
+    > .site-text-link__label,
+body[data-page="articles"] .articles-load-more > button:is(:hover, :focus-visible) > .site-text-link__label {
+    text-decoration: underline;
+}
+
 /* Home card actions reveal the label underline on hover or keyboard focus. */
 body[data-page="home"] main .site-text-link > .site-text-link__label {
     text-decoration: none;
@@ -159,5 +193,30 @@ body[data-page="home"] main .site-text-link--plain > .site-text-link__label {
     }
     body[data-page] [data-consultation] .site-consultation__mobile-form {
         margin-inline: auto;
+    }
+}
+
+/* Search fields share the surrounding panel color, including the enhanced
+ * catalog dropdowns. These selectors do not affect enquiry or contact fields. */
+body[data-page] .product-search .product-search__field-row,
+body[data-page] .articles-search .articles-search__field-row {
+    background-color: inherit;
+}
+body[data-page] .product-search :is(.product-search__input, .product-search__select, .product-search__dropdown-toggle),
+body[data-page] .articles-search .articles-search__input {
+    background-color: transparent;
+}
+
+@media (min-width: 1025px) and (max-width: 1493px) {
+    body[data-page] [data-consultation] .site-consultation__content > h2,
+    body[data-page] .catalog-consultation .catalog-consultation__title {
+        font-size: 31px;
+    }
+}
+
+/* The illustrated catalog CTA needs a smaller heading in this exact range. */
+@media (min-width: 1025px) and (max-width: 1480px) {
+    body[data-page] .catalog-consultation .catalog-consultation__title {
+        font-size: 22px;
     }
 }

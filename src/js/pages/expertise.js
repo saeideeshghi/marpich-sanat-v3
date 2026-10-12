@@ -1,8 +1,4 @@
-// Page entry: shared foundation first, page styles next, responsive layer last.
-import "../../css/main.css";
-import "../../css/pages/expertise.css";
-import "../../css/components/content-flow.css";
-import "../../css/responsive.css";
+// Page behavior; the head loads styles before this module.
 import { initSite } from "../main.js";
 
 import { initServiceDisclosures } from "../components/services.js";

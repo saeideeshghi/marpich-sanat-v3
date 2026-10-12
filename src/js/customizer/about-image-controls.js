@@ -9,7 +9,7 @@ const definitions = [
         role: "about-image",
         property: "image-source",
         label: "فایل تصویر · مسیر یا URL",
-        placeholder: "/assets/images/about/team.webp",
+        placeholder: "/assets/images/about/about-team.svg",
         wide: true,
     },
     {

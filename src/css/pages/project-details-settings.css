@@ -5,9 +5,9 @@ body[data-page="project-details"] {
     --project-heading-font-size-desktop: 28px;
     --project-heading-font-size-tablet: 26px;
     --project-heading-font-size-mobile: 22px;
-    --project-body-font-size-desktop: 14px;
-    --project-body-font-size-tablet: 14px;
-    --project-body-font-size-mobile: 14px;
+    --project-body-font-size-desktop: 16px;
+    --project-body-font-size-tablet: 16px;
+    --project-body-font-size-mobile: 16px;
     --project-meta-label-font-size-desktop: 14px;
     --project-meta-label-font-size-tablet: 14px;
     --project-meta-label-font-size-mobile: 12px;
@@ -20,7 +20,7 @@ body[data-page="project-details"] {
     --project-grid-gap: 24px;
     --project-meta-columns: 6;
     --project-meta-padding: 12px;
-    --project-cover-min-height: 500px;
+    --project-cover-min-height: 250px;
     --project-stats-columns: 5;
     --project-stat-icon-size: 52px;
     --project-stat-value-size: 28px;
@@ -35,8 +35,13 @@ body[data-page="project-details"] {
         --project-body-font-size: var(--project-body-font-size-tablet);
         --project-meta-label-font-size: var(--project-meta-label-font-size-tablet);
         --project-meta-value-font-size: var(--project-meta-value-font-size-tablet);
-        --project-cover-min-height: 380px;
+        --project-cover-min-height: 250px;
         --project-stats-columns: 3;
+    }
+}
+@media (min-width: 1181px) {
+    body[data-page="project-details"] {
+        --project-cover-min-height: 346px;
     }
 }
 @media (max-width: 639px) {

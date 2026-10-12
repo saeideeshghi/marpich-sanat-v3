@@ -56,3 +56,33 @@
         --site-pattern-scene-height: 404px;
     }
 }
+
+/* Use the whole dark backdrop in this range; the renderer centers its artwork
+ * vertically without moving any content or changing the footer stage. */
+@media (min-width: 675px) and (max-width: 1180px) {
+    .site-pattern-layer--header {
+        height: var(--site-pattern-crop-height, 100%);
+    }
+}
+
+/* Static page artwork retains the uploaded SVG's own 8% opacity. Coordinates
+ * are shared across surfaces; no glow, filter, animation or content wrappers. */
+.site-page-background-host {
+    isolation: isolate;
+}
+body[data-page] .site-page-background-layer {
+    position: absolute;
+    z-index: -1;
+    overflow: hidden;
+    contain: strict;
+    pointer-events: none;
+    user-select: none;
+    background-image: url("/assets/decorations/page-pattern.svg");
+    background-repeat: no-repeat;
+}
+
+/* The shared artwork replaces the About-only sketched waves once mounted. */
+body[data-page="about"] .about-main.site-page-background-host::before,
+body[data-page="about"] .about-main.site-page-background-host::after {
+    display: none;
+}

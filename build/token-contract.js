@@ -1,10 +1,12 @@
 // The browser and file-write endpoint share this generated, source-owned allowlist.
 export function tokenContract(tokens) {
     const runtimeHelp = {
-        "--articles-heading-bottom":
-            "از انتهای واقعی عنوان مقالات محاسبه می‌شود؛ ارتفاع زمینه را با articles-backdrop-min-height تنظیم کن.",
-        "--articles-search-backdrop-height":
-            "از موقعیت فرم و دو سوم ارتفاع آن محاسبه می‌شود؛ خروجی اندازه‌گیری است و در هر عرض خودکار تغییر می‌کند.",
+        "--pcm-height":
+            "از motion.heroHeight در src/data/product-motion/config.json تنظیم کن؛ موتور انیمیشن مقدار را هنگام راه‌اندازی و تغییر تنظیمات روی باکس انتخاب‌شده می‌نویسد.",
+        "--pcm-radius":
+            "از motion.heroRadius در src/data/product-motion/config.json تنظیم کن؛ موتور انیمیشن این مقدار را برای باکس انتخاب‌شده و لایهٔ متحرک هماهنگ می‌کند.",
+        "--hero-search-backdrop-height":
+            "مرز زمینه به‌صورت خودکار تا نیمهٔ ارتفاع فرم جستجو محاسبه می‌شود؛ فاصلهٔ فرم را در استایل هیرو تغییر دهید.",
         "--contact-intro-background":
             "از ارتفاع متن تماس محاسبه می‌شود؛ ارتفاع زمینه را با contact-backdrop-min-height تنظیم کن.",
         "--hero-summary-overlap":
@@ -19,7 +21,7 @@ export function tokenContract(tokens) {
             const kind =
                 name === "--font-peyda"
                     ? "font"
-                    : /(?:color|page-bg|shadow)/.test(name)
+                    : /(?:color|page-bg|shadow)/.test(name) || /^--pcm-(?:blue|ink|orange)$/.test(name)
                       ? name.includes("shadow")
                           ? "shadow"
                           : "color"

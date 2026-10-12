@@ -294,16 +294,38 @@ body[data-page] main .projects-page__card-brand img {
     line-height: 1.85;
 }
 
-.projects-page__card-meta {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+/* Keep a three-line slot on every project card. lh follows the actual type,
+ * including customizer font overrides. Page geometry must survive regenerated
+ * template-overrides.css; main adds specificity to the existing role rule. */
+body[data-page="projects"]
+    main
+    .projects-page__card
+    > div.projects-page__card-body
+    > p.projects-page__card-description:not([hidden]) {
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 3 !important;
+    line-clamp: 3 !important;
+    height: 3lh !important;
+    min-height: 3lh !important;
+    max-height: 3lh !important;
+    overflow: hidden !important;
+}
+
+/* Size badges from their text, then share each row's remaining width.
+ * A badge that wraps onto its own row expands to the full card width. */
+body[data-page="projects"] main .projects-page__card .projects-page__card-meta {
+    display: flex;
+    flex-wrap: wrap;
     gap: 0.35rem;
     margin-top: 0.85rem;
 }
 
-.projects-page__card-meta span {
+body[data-page="projects"] main .projects-page__card .projects-page__card-meta > span {
+    flex: 1 1 auto;
     min-width: 0;
-    padding: 0.36rem 0.3rem;
+    max-width: 100%;
+    padding: 0.36rem 0.625rem;
     overflow: hidden;
     border: 1px solid #d9e3ef;
     border-radius: 0.45rem;
@@ -312,7 +334,6 @@ body[data-page] main .projects-page__card-brand img {
     text-align: center;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 0.875rem;
 }
 
 .projects-page__card-link {

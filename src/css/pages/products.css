@@ -4,6 +4,12 @@
 
 ========================================================= */
 
+/* Clip horizontal overflow without creating a second vertical scroll container
+ * when the category grid and background temporarily exceed the body height. */
+body[data-page="products"] {
+    overflow-x: clip;
+}
+
 .products-page {
     min-height: 100vh;
 

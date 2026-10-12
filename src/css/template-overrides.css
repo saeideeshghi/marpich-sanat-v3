@@ -9,7 +9,7 @@ body[data-page] .site-hero__title {
     direction: rtl !important;
 }
 body[data-page] .site-hero__description {
-    text-align: justify !important;
+    text-align: right !important;
     text-align-last: right !important;
     direction: rtl !important;
 }
@@ -17,7 +17,7 @@ body[data-page] main h2:not(.featured-card__title):not(.site-card__title):not(.p
     text-align: right !important;
     direction: rtl !important;
 }
-body[data-page] :is(main p, main li, .site-prose):not(.featured-card__description):not(.site-card__description):not(.site-hero__description):not(.site-hero__eyebrow):not(.site-card__media-tag):not(.site-card__meta-tag):not(.site-card__status-tag):not(.project-details__testimonial-kicker-copy):not(:where(.project-details__reference-copy)) {
+body[data-page] :is(main p, main li, .site-prose):not(.featured-card__description):not(.site-card__description):not(.site-hero__description):not(.site-hero__eyebrow):not(.site-card__media-tag):not(.site-card__meta-tag):not(.site-card__status-tag):not(.project-details__testimonial-kicker-copy):not(:where(.project-details__reference-copy, .home-process-step, .home-process-step > p)) {
     text-align: justify !important;
     text-align-last: right !important;
     direction: rtl !important;
@@ -118,6 +118,18 @@ body[data-page="expertise"] .site-card__title {
     font-size: 16px !important;
 }
 }
+body[data-page="expertise"] .site-card__description:not([hidden]) {
+    text-align: justify !important;
+    text-align-last: right !important;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 3 !important;
+    line-clamp: 3 !important;
+    max-height: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+}
 @media (max-width: 450px) {
 body[data-page="expertise"] .site-card__description {
     font-size: 14px !important;
@@ -151,7 +163,12 @@ body[data-page="project-details"] .project-details__product-card .site-card__tit
 }
 @media (max-width: 639px) {
 body[data-page="project-details"] .project-details__product-card .site-card__description {
-    font-size: 14px !important;
+    font-size: 16px !important;
+}
+}
+@media (min-width: 1025px) and (max-width: 1480px) {
+body[data-page] .catalog-consultation__title {
+    font-size: 22px !important;
 }
 }
 body[data-page="home"] .home-projects-grid > article.site-card > div.site-card__body > p.site-card__description:not([hidden]) {
@@ -174,6 +191,26 @@ body[data-page="projects"] .projects-page__card > div.projects-page__card-body >
     min-height: 0 !important;
     overflow: hidden !important;
 }
+body[data-page="home"] .home-process-step > h3 {
+    text-align: center !important;
+    text-align-last: center !important;
+}
+body[data-page="home"] .home-process-step > p {
+    text-align: center !important;
+    text-align-last: center !important;
+}
+body[data-page="project-details"] .project-details__product-card > .project-details__product-body > p.site-card__description {
+    font-size: 16px !important;
+}
+body[data-page="contact"] .branch-card__address {
+    font-size: 12px !important;
+}
+body[data-page="contact"] .contact-benefits > .contact-benefits__grid > .benefit-item > h3.site-card__title {
+    font-size: 14px !important;
+}
+body[data-page="contact"] .contact-benefits > .contact-benefits__grid > .benefit-item > p.site-prose {
+    font-size: 14px !important;
+}
 @media (min-width: 1180px) {
 body[data-page="home"] .home-process-step > h3 {
     text-align-last: center !important;
@@ -186,7 +223,7 @@ body[data-page="home"] .home-process-step > p {
 }
 @media (min-width: 1180px) {
 body[data-page="home"] .home-process-step {
-    justify-self: center !important;
+    justify-self: stretch !important;
 }
 }
 @media (min-width: 1180px) {
@@ -308,8 +345,6 @@ body[data-page="home"] .site-frame {
 }
 @media (max-width: 639px) {
 body[data-page="home"] .home-article__row > div.home-article__media:nth-of-type(1) > img {
-    height: 100px !important;
-    max-width: 100px !important;
     align-self: center !important;
 }
 }
@@ -365,7 +400,7 @@ body[data-page="project-details"] .project-details__product-card > div.project-d
 }
 @media (max-width: 639px) {
 body[data-page="project-details"] .project-details__product-card > div.project-details__product-body:nth-of-type(2) > p.site-prose {
-    font-size: 11px !important;
+    font-size: 16px !important;
 }
 }
 @media (max-width: 639px) {
@@ -482,6 +517,16 @@ body[data-page="about"] .about-story__intro > p.about-story__text.site-prose {
 }
 body[data-page="about"] .about-timeline__body > p.site-prose {
     font-size: 14px !important;
+}
+body[data-page="project-details"] .project-details__stat > p.project-details__stat-description:not([hidden]) {
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
+    max-height: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
 }
 @media (min-width: 1180px) {
 body[data-page="home"] .home-process-steps > li.home-process-step:nth-of-type(1) > p {

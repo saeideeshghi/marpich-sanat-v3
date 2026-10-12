@@ -9,7 +9,7 @@ import { loadDesignConfig, settingsText } from "./design-config.js";
 // Filesystem paths stay native; Vite hook comparisons use forward slashes.
 const normalizePath = (file) => file?.replaceAll("\\", "/");
 
-export function templateCustomizer(root, base) {
+export function templateCustomizer(root, base, { publicTools = true } = {}) {
     const settingsPath = resolve(root, "src/data/customizer/settings.json");
     const cssPath = resolve(root, "src/css/template-overrides.css");
     const patternPaths = {
@@ -59,7 +59,9 @@ export function templateCustomizer(root, base) {
                               {
                                   tag: "script",
                                   attrs: { id: "mps-image-sources", type: "application/json" },
-                                  children: JSON.stringify(imageSourceRules(config.rules)),
+                                  // Script raw text must not contain a closing
+                                  // tag even when a CMS URL contains encoded markup.
+                                  children: JSON.stringify(imageSourceRules(config.rules)).replaceAll("<", "\\u003c"),
                                   injectTo: "head",
                               },
                           ]
@@ -87,6 +89,24 @@ export function templateCustomizer(root, base) {
                 }
                 if (path === `${base}assets/customizer/settings.json`) return json(res, 200, load());
                 if (path !== `${base}__customizer/settings`) return next();
+                // This middleware answers before Vite's own Host checks. Protect
+                // reads of the write token as well as writes from DNS rebinding.
+                try {
+                    const address = new URL(`${req.socket?.encrypted ? "https" : "http"}://${req.headers.host}`);
+                    const loopback =
+                        address.hostname === "localhost" ||
+                        address.hostname === "[::1]" ||
+                        /^127\.(?:\d+\.){2}\d+$/.test(address.hostname);
+                    if (!loopback || address.username || address.password) throw new Error("host");
+                    const peer = req.socket?.remoteAddress?.replace(/^::ffff:/i, "");
+                    if (peer && peer !== "::1" && !/^127\.(?:\d+\.){2}\d+$/.test(peer)) throw new Error("peer");
+                    const requestOrigin = address.origin;
+                    if (req.headers.origin && new URL(req.headers.origin).origin !== requestOrigin)
+                        throw new Error("origin");
+                    if (req.headers["sec-fetch-site"] === "cross-site") throw new Error("origin");
+                } catch {
+                    return json(res, 403, { error: "ویرایش تنظیمات فقط از همین آدرس محلی مجاز است." });
+                }
                 if (req.method === "GET")
                     return json(
                         res,
@@ -98,28 +118,20 @@ export function templateCustomizer(root, base) {
                     );
                 if (req.method !== "POST") return json(res, 405, { error: "روش درخواست معتبر نیست." });
                 // File writes are available only to this same-origin editor.
-                const origin = req.headers.origin;
-                let originHost;
-                try {
-                    if (origin) originHost = new URL(origin).host;
-                } catch {
-                    return json(res, 403, { error: "مبدأ درخواست معتبر نیست." });
-                }
-                if (
-                    req.headers["x-marpich-customizer"] !== token ||
-                    req.headers["sec-fetch-site"] === "cross-site" ||
-                    (originHost && originHost !== req.headers.host)
-                )
+                if (req.headers["x-marpich-customizer"] !== token)
                     return json(res, 403, { error: "ثبت فقط از ویرایشگر همین پروژه مجاز است." });
                 if (!req.headers["content-type"]?.startsWith("application/json"))
                     return json(res, 415, { error: "درخواست JSON لازم است." });
                 try {
-                    let body = "";
+                    const chunks = [];
+                    let bytes = 0;
                     for await (const chunk of req) {
-                        body += chunk.toString("utf8");
-                        if (Buffer.byteLength(body) > 2097152)
-                            return json(res, 413, { error: "حجم تنظیمات بیش از حد است." });
+                        bytes += chunk.length;
+                        if (bytes > 2097152) return json(res, 413, { error: "حجم تنظیمات بیش از حد است." });
+                        chunks.push(chunk);
                     }
+                    // Network chunks can split a Persian UTF-8 character.
+                    const body = Buffer.concat(chunks).toString("utf8");
                     const request = JSON.parse(body);
                     const current = load();
                     if (request.revision !== revision(current))
@@ -165,11 +177,12 @@ export function templateCustomizer(root, base) {
                 fileName: "assets/customizer/template-overrides.css",
                 source: compileCSS(config),
             });
-            this.emitFile({
-                type: "asset",
-                fileName: "assets/customizer/settings.json",
-                source: `${JSON.stringify(config, null, 2)}\n`,
-            });
+            if (publicTools)
+                this.emitFile({
+                    type: "asset",
+                    fileName: "assets/customizer/settings.json",
+                    source: `${JSON.stringify(config, null, 2)}\n`,
+                });
         },
     };
 }

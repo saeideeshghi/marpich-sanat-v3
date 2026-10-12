@@ -50,11 +50,15 @@ body[data-page]
     padding-top: 0;
 }
 body[data-page] .site-hero :is(.product-search, .articles-search) {
-    margin-top: 24px;
+    margin-top: 60px;
 }
-/* Light form surfaces keep their own colors; the dark canvas covers the hero. */
-body[data-page] :is(.products-hero, .industries-hero, .air-handling__hero)::before {
-    height: 100%;
+/* Search panels cross the canvas exactly at their midpoint. The shared hero
+ * module measures their actual height after wrapping, filtering and resizing. */
+body[data-page] :is(.products-hero, .industries-hero, .air-handling__hero, .articles-hero) {
+    --site-pattern-crop-height: var(--hero-search-backdrop-height, 100%);
+}
+body[data-page] :is(.products-hero, .industries-hero, .air-handling__hero, .articles-hero)::before {
+    height: var(--hero-search-backdrop-height, 100%);
 }
 
 /* Home keeps its image and gradient within its own canvas; the header is a
@@ -70,7 +74,7 @@ body[data-page="home"] .hero-content {
 }
 
 /* Overlapping summaries remain below the title even as the new type wraps. */
-body[data-page="product-details"] main > section:first-child {
+body[data-page="product-details"] main > .product-details__summary {
     translate: none;
     transform: translateY(calc(-1 * var(--hero-summary-overlap, 0px)));
     margin-bottom: calc(-1 * var(--hero-summary-overlap, 0px));

@@ -60,6 +60,8 @@ _Layout.cshtml شامل lang="fa"، dir="rtl"، Metadata، Header، Menu، Auth�
 
 ۴. Assetها و Manifest را در یک Release منتقل کنید؛ HTML یا Manifest جدید کنار فایل‌های قبلیِ حذف‌شده می‌تواند 404 بسازد. در زمان Deploy، قابلیت نمایش خطا یا بررسی نبود entry را در AssetResolver قرار دهید.
 
+CSS اولیه در نسخهٔ فعلی دو لینک مستقیم در head دارد: src/css/main.css و src/css/entries/<page>.css. نام و ترتیب CSSهای هش‌دار را از HTML ساخته‌شدهٔ همان صفحه و Manifest واقعی استخراج کنید؛ تنها دنبال‌کردن importهای JS برای جمع‌آوری CSS کافی نیست. لینک‌های CSS را در head بگذارید و بارگذاری آن‌ها را به JavaScript نسپارید.
+
 ```cshtml
 @foreach (var css in Model.PageAssets.Css)
 {

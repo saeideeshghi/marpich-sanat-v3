@@ -11,16 +11,19 @@
  * Only the Pattern Studio demo background/text are omitted here. The site host owns
  * its background/content; this module supplies the decorative SVG layer only.
  */
-import patternSettings from "../../data/patterns/site-pattern.json";
-import footerPatternSettings from "../../data/patterns/footer-pattern.json";
 import { normalizePattern, PATTERN_RENDER_DEFAULTS } from "../customizer/pattern-model.js";
-import { continuousLoopProgress, repeatingLightStops } from "./pattern-loop.js";
+import { continuousLoopProgress, repeatingLightSpan, repeatingLightStops } from "./pattern-loop.js";
 const mountedPatterns = new Map();
 let previewListener = false;
+let productBusy = false;
+const linkedProducts = new WeakSet();
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
-const cloneConfig = (settings = patternSettings) => JSON.parse(JSON.stringify(settings));
+const patternLoaders = {
+    header: () => import("virtual:site-pattern/header").then((module) => module.default),
+    footer: () => import("virtual:site-pattern/footer").then((module) => module.default),
+};
 
 export function mountPattern(root, initialConfig, initialTime = 0) {
     const uid = `mps-pattern-${Math.random().toString(36).slice(2, 10)}`;
@@ -38,14 +41,42 @@ export function mountPattern(root, initialConfig, initialTime = 0) {
     let clockRate = 1;
     let timelineReady = false;
     let paused = false;
+    let suspended = false;
     let selected = null;
     let artwork = null;
     let sceneWidth = 1008;
     let sceneHeight = 494;
     const defaultArtwork = { viewBox: [0, 0, 1008, 494], lines: config.lines, waveAxis: "y", lightAxis: "x" };
-    let visible = true;
+    const initialBounds = root.getBoundingClientRect();
+    let visible =
+        initialBounds.bottom > 0 && initialBounds.top < (window.innerHeight || document.documentElement.clientHeight);
     let profile;
     let nodes = [];
+    let preparationTask = null,
+        prepareNext = null,
+        preparationRevision = 0;
+
+    function cancelPreparation() {
+        preparationRevision++;
+        prepareNext = null;
+        if (!preparationTask) return;
+        if (preparationTask.idle) window.cancelIdleCallback?.(preparationTask.id);
+        else window.clearTimeout(preparationTask.id);
+        preparationTask = null;
+    }
+
+    function schedulePreparation() {
+        if (!prepareNext || preparationTask || !visible || suspended || document.hidden) return;
+        const revision = preparationRevision;
+        const run = () => {
+            preparationTask = null;
+            if (revision !== preparationRevision || !visible || suspended || document.hidden) return;
+            prepareNext?.();
+        };
+        preparationTask = window.requestIdleCallback
+            ? { idle: true, id: window.requestIdleCallback(run, { timeout: 120 }) }
+            : { idle: false, id: window.setTimeout(run, 0) };
+    }
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
@@ -401,6 +432,7 @@ export function mountPattern(root, initialConfig, initialTime = 0) {
         root.dataset.patternArtwork = profile.artwork || profileName;
         const nextArtwork = config.artworks?.[profile.artwork || profileName] || defaultArtwork;
         if (artwork !== nextArtwork) {
+            cancelPreparation();
             svg.pauseAnimations();
             time = elapsed;
             timelineReady = false;
@@ -422,8 +454,10 @@ export function mountPattern(root, initialConfig, initialTime = 0) {
             animation.amplitude,
             profileName,
         ].join("|");
-        if (motionSignature !== nextMotion || nodes.some((node) => !node.motionTokens)) {
-            nodes.forEach(prepareMotion);
+        if (motionSignature !== nextMotion) {
+            nodes.forEach((node) => {
+                node.motionTokens = null;
+            });
             motionSignature = nextMotion;
         }
         const p = profile;
@@ -451,6 +485,15 @@ export function mountPattern(root, initialConfig, initialTime = 0) {
             opacity: p.opacity / 100,
             clipPath: "none",
         });
+
+        // The approved Y value (7.1%) is the center reference in this range.
+        // Keeping Y on the graphic lets Customizer edits offset that center,
+        // including after Save, while the stage follows the real backdrop.
+        const centerHeader =
+            root.dataset.sitePattern === "header" && root.clientWidth >= 675 && root.clientWidth <= 1180;
+        const centeredTop =
+            root.clientHeight / 2 - (p.height * 0.071 + parseFloat(getComputedStyle(pattern).height) / 2);
+        stage.style.top = centerHeader ? `${centeredTop}px` : "0px";
 
         const nextFade = [p.fadeLeft, p.fadeStart, p.fadeEnd].join("|");
         if (fadeSignature !== nextFade) {
@@ -482,8 +525,9 @@ export function mountPattern(root, initialConfig, initialTime = 0) {
     function stabilizeStrokes() {
         const minimum = animation.minStrokeWidth ?? PATTERN_RENDER_DEFAULTS.minStrokeWidth;
         root.dataset.patternMinStroke = String(minimum);
-        for (const node of nodes) {
-            const matrix = node.normalPath.getScreenCTM();
+        const matrices = nodes.map((node) => node.normalPath.getScreenCTM());
+        for (const [index, node] of nodes.entries()) {
+            const matrix = matrices[index];
             let width = Math.max(0, node.line.thickness);
             if (artwork.strokeOnly) {
                 // Non-scaling strokes keep the same CSS-pixel weight in a tall
@@ -559,6 +603,10 @@ export function mountPattern(root, initialConfig, initialTime = 0) {
             prefersReducedMotion(),
         ]);
         if (signature === timelineSignature) return;
+        cancelPreparation();
+        timelineReady = false;
+        timelineSignature = signature;
+        time = elapsed;
         svg.pauseAnimations();
         svg.querySelectorAll("animate, clipPath[data-entrance]").forEach((item) => item.remove());
         filtered.removeAttribute("clip-path");
@@ -571,12 +619,14 @@ export function mountPattern(root, initialConfig, initialTime = 0) {
         const samples = 64;
         const fractions = Array.from({ length: samples + 1 }, (_, i) => i / samples);
         const axis = artwork.lightAxis === "y" ? "y" : "x";
-        const span = Math.max(1, axis === "y" ? sceneHeight : sceneWidth);
+        const sceneSpan = Math.max(1, axis === "y" ? sceneHeight : sceneWidth);
+        const span = repeatingLightSpan(sceneSpan, animation.lightWidth);
         const lightStops = repeatingLightStops(span, animation.lightWidth, animation.lightColor, animation.coreColor);
-        for (const node of nodes) {
+        function prepareNode(node) {
             const line = node.line;
             setAttribute(node.basePath, "d", line.d);
             if (line.visible && wave && line.wave > 0 && line.speed > 0) {
+                if (!node.motionTokens) prepareMotion(node);
                 const paths = fractions.map((f) => motionPath(node, f * Math.PI * 2 * animation.direction));
                 paths[samples] = paths[0];
                 setAttribute(node.basePath, "d", paths[0]);
@@ -589,15 +639,18 @@ export function mountPattern(root, initialConfig, initialTime = 0) {
             const emphasis = selected === null || selected === node.index ? 1 : 0.08;
             setAttribute(node.group, "opacity", (line.opacity / 100) * emphasis);
             setAttribute(node.glowWrapper, "opacity", (line.opacity / 100) * emphasis);
-            if (!active) continue;
+            if (!active) return;
             // Start with light inside the drawing. Neighbouring repeat tiles hand
             // it across the edges; no off-canvas travel creates a dark wait.
             setGradientStops(node.light, lightStops);
             const origins = fractions.map(
                 (f) => -span / 4 + span * animation.lightDirection * continuousLoopProgress(f, animation.easing),
             );
-            const total = animation.lightPeriod + Math.max(0, animation.lightPause);
-            const keyTimes = fractions.map((f) => (f * animation.lightPeriod) / total);
+            // A shorter repeat tile keeps at least one highlight in the visible
+            // drawing. Scale its time too, preserving the original travel speed.
+            const lightPeriod = animation.lightPeriod * (span / sceneSpan);
+            const total = lightPeriod + Math.max(0, animation.lightPause);
+            const keyTimes = fractions.map((f) => (f * lightPeriod) / total);
             if (animation.lightPause > 0) {
                 origins.push(origins.at(-1));
                 keyTimes.push(1);
@@ -611,50 +664,66 @@ export function mountPattern(root, initialConfig, initialTime = 0) {
                 animate(node.light, name, values, total / line.speed, { delay: line.delay, keyTimes });
             }
         }
-        if (!calm && animation.pulse > 0) {
-            const values = fractions.map((f) => 1 - (animation.pulse / 100) * (0.5 + 0.5 * Math.cos(f * 2 * Math.PI)));
-            values[samples] = values[0];
-            animate(svg, "opacity", values, animation.pulsePeriod);
+        function finishTimeline() {
+            if (!calm && animation.pulse > 0) {
+                const values = fractions.map(
+                    (f) => 1 - (animation.pulse / 100) * (0.5 + 0.5 * Math.cos(f * 2 * Math.PI)),
+                );
+                values[samples] = values[0];
+                animate(svg, "opacity", values, animation.pulsePeriod);
+            }
+            if (!calm && animation.entrance === "fade") {
+                filtered.setAttribute("opacity", 0);
+                animate(filtered, "opacity", fractions.map(eased), animation.entranceDuration, {
+                    delay: animation.entranceDelay,
+                    once: true,
+                });
+            } else if (!calm && animation.entrance === "reveal") {
+                const clip = create(
+                    "clipPath",
+                    { id: `${uid}-entrance`, clipPathUnits: "userSpaceOnUse", "data-entrance": "" },
+                    defs,
+                );
+                const rect = create("rect", { x: sceneWidth, y: -2000, width: 0, height: 5000 }, clip);
+                animate(
+                    rect,
+                    "x",
+                    fractions.map((f) => sceneWidth - eased(f) * (sceneWidth + 2000)),
+                    animation.entranceDuration,
+                    { delay: animation.entranceDelay, once: true },
+                );
+                animate(
+                    rect,
+                    "width",
+                    fractions.map((f) => eased(f) * (sceneWidth + 2000)),
+                    animation.entranceDuration,
+                    { delay: animation.entranceDelay, once: true },
+                );
+                filtered.setAttribute("clip-path", `url(#${uid}-entrance)`);
+            }
+            timelineReady = true;
+            timelineSignature = signature;
+            svg.setCurrentTime(time / clockRate);
+            root.dataset.patternRenderer = "native-svg";
+            sync();
         }
-        if (!calm && animation.entrance === "fade") {
-            filtered.setAttribute("opacity", 0);
-            animate(filtered, "opacity", fractions.map(eased), animation.entranceDuration, {
-                delay: animation.entranceDelay,
-                once: true,
-            });
-        } else if (!calm && animation.entrance === "reveal") {
-            const clip = create(
-                "clipPath",
-                { id: `${uid}-entrance`, clipPathUnits: "userSpaceOnUse", "data-entrance": "" },
-                defs,
-            );
-            const rect = create("rect", { x: sceneWidth, y: -2000, width: 0, height: 5000 }, clip);
-            animate(
-                rect,
-                "x",
-                fractions.map((f) => sceneWidth - eased(f) * (sceneWidth + 2000)),
-                animation.entranceDuration,
-                { delay: animation.entranceDelay, once: true },
-            );
-            animate(
-                rect,
-                "width",
-                fractions.map((f) => eased(f) * (sceneWidth + 2000)),
-                animation.entranceDuration,
-                { delay: animation.entranceDelay, once: true },
-            );
-            filtered.setAttribute("clip-path", `url(#${uid}-entrance)`);
-        }
-        timelineReady = true;
-        timelineSignature = signature;
-        time = elapsed;
-        svg.setCurrentTime(elapsed / clockRate);
-        root.dataset.patternRenderer = "native-svg";
+        let index = 0;
+        prepareNext = () => {
+            if (index < nodes.length) prepareNode(nodes[index++]);
+            if (index < nodes.length) schedulePreparation();
+            else {
+                prepareNext = null;
+                finishTimeline();
+            }
+        };
+        schedulePreparation();
     }
 
     function isAnimating() {
         return (
+            timelineReady &&
             !paused &&
+            !suspended &&
             !document.hidden &&
             visible &&
             !prefersReducedMotion() &&
@@ -667,7 +736,12 @@ export function mountPattern(root, initialConfig, initialTime = 0) {
     }
 
     function sync() {
+        if (!visible || suspended || document.hidden) {
+            svg.pauseAnimations();
+            return;
+        }
         prepareTimeline();
+        schedulePreparation();
         // Pausing the native clock preserves the exact frame on scroll/tab hiding.
         // Resuming never adds invisible wall-clock time to the next visible frame.
         if (isAnimating()) svg.unpauseAnimations();
@@ -713,6 +787,10 @@ export function mountPattern(root, initialConfig, initialTime = 0) {
             paused = Boolean(value);
             sync();
         },
+        suspend(value) {
+            suspended = Boolean(value);
+            sync();
+        },
         seek(value) {
             time = Math.max(0, Number(value) || 0);
             svg.setCurrentTime(time / clockRate);
@@ -742,7 +820,8 @@ export function mountPattern(root, initialConfig, initialTime = 0) {
                     copy.setAttribute("opacity", getComputedStyle(source).opacity);
             }
             nodes.forEach((node) => {
-                if (!prefersReducedMotion() && ["wave", "combined"].includes(animation.mode) && node.line.wave > 0)
+                if (!prefersReducedMotion() && ["wave", "combined"].includes(animation.mode) && node.line.wave > 0) {
+                    if (!node.motionTokens) prepareMotion(node);
                     clone
                         .querySelector(`[id="${node.basePath.id}"]`)
                         .setAttribute(
@@ -757,6 +836,7 @@ export function mountPattern(root, initialConfig, initialTime = 0) {
                                     animation.period,
                             ),
                         );
+                }
             });
             clone.querySelectorAll("animate").forEach((item) => item.remove());
             clone.setAttribute(
@@ -766,6 +846,7 @@ export function mountPattern(root, initialConfig, initialTime = 0) {
             return new XMLSerializer().serializeToString(clone);
         },
         destroy() {
+            cancelPreparation();
             cancelAnimationFrame(resizeFrame);
             resizeObserver.disconnect();
             intersectionObserver.disconnect();
@@ -788,8 +869,48 @@ function createPatternLayer(kind) {
     return root;
 }
 
+// Hidden footer artwork is not parsed or sampled during the initial page load.
+function registerPattern(host, kind) {
+    host.classList.add("site-pattern-host");
+    const root = createPatternLayer(kind);
+    host.prepend(root);
+    const entry = { root, source: null, config: "", player: null, paused: false, loading: false };
+    mountedPatterns.set(kind, entry);
+    const mount = async () => {
+        if (entry.player || entry.loading) return;
+        entry.loading = true;
+        const loaded = await patternLoaders[kind]();
+        // A live preview received during loading takes precedence.
+        entry.source ||= loaded;
+        entry.config = JSON.stringify(entry.source);
+        entry.player = mountPattern(root, entry.source);
+        entry.player.pause(entry.paused);
+        entry.player.suspend(productBusy);
+    };
+    if (typeof IntersectionObserver === "function") {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (!entries.some((item) => item.isIntersecting)) return;
+                observer.disconnect();
+                mount().catch((error) => console.warn("Pattern initialization failed", error));
+            },
+            { rootMargin: "160px" },
+        );
+        observer.observe(host);
+    } else mount().catch((error) => console.warn("Pattern initialization failed", error));
+}
+
 export function initSitePatterns() {
     const page = document.body.dataset.page;
+    const products = document.querySelector("[data-products-page]");
+    if (products && !linkedProducts.has(products)) {
+        linkedProducts.add(products);
+        productBusy = Boolean(products.__productMotion?.getState().busy);
+        products.addEventListener("product-motion:busy", (event) => {
+            productBusy = Boolean(event.detail?.busy);
+            for (const entry of mountedPatterns.values()) entry.player?.suspend(productBusy);
+        });
+    }
 
     // Home has its own image-led hero and intentionally does not use the shared
     // header pattern. Every internal page, including Contact, mounts it once.
@@ -797,32 +918,16 @@ export function initSitePatterns() {
         const header = document.querySelector(".site-header");
         const headerHost = document.querySelector("[data-site-hero]") || header?.parentElement;
         if (headerHost && !headerHost.querySelector(":scope > [data-site-pattern='header']")) {
-            headerHost.classList.add("site-pattern-host");
-            const layer = createPatternLayer("header");
-            headerHost.prepend(layer);
-            const config = cloneConfig();
-            mountedPatterns.set("header", {
-                root: layer,
-                config: JSON.stringify(config),
-                player: mountPattern(layer, config),
-            });
+            registerPattern(headerHost, "header");
         }
     }
 
     const footer = document.querySelector(".site-footer");
     if (footer && !footer.querySelector(":scope > [data-site-pattern='footer']")) {
-        footer.classList.add("site-pattern-host");
-        const layer = createPatternLayer("footer");
-        footer.prepend(layer);
         // Desktop placement and the mobile portrait artwork come from the footer export.
-        const config = cloneConfig(footerPatternSettings);
-        mountedPatterns.set("footer", {
-            root: layer,
-            config: JSON.stringify(config),
-            player: mountPattern(layer, config),
-        });
+        registerPattern(footer, "footer");
     }
-    if (!previewListener) {
+    if (!previewListener && import.meta.env.MODE !== "backend") {
         previewListener = true;
         window.addEventListener("site:pattern-preview", (event) => {
             for (const [kind, entry] of mountedPatterns) {
@@ -830,12 +935,17 @@ export function initSitePatterns() {
                 const config = normalizePattern(event.detail[kind]);
                 const signature = JSON.stringify(config);
                 if (signature !== entry.config) {
-                    const time = entry.player.time;
-                    entry.player.destroy();
-                    entry.player = mountPattern(entry.root, config, time);
+                    entry.source = config;
+                    if (entry.player) {
+                        const time = entry.player.time;
+                        entry.player.destroy();
+                        entry.player = mountPattern(entry.root, config, time);
+                        entry.player.suspend(productBusy);
+                    }
                     entry.config = signature;
                 }
-                entry.player.pause(Boolean(event.detail.paused));
+                entry.paused = Boolean(event.detail.paused);
+                entry.player?.pause(entry.paused);
             }
         });
     }

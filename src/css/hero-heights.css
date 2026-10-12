@@ -65,8 +65,8 @@
 }
 /* about.html */
 #hero-about {
-    --hero-min-height-desktop: 31rem;
-    --hero-min-height-tablet: 31rem;
+    --hero-min-height-desktop: 26rem;
+    --hero-min-height-tablet: 26rem;
     --hero-min-height-mobile: 25svh;
 }
 /* contact.html */

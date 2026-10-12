@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { continuousLoopProgress, repeatingLightStops } from "../src/js/components/pattern-loop.js";
+import { continuousLoopProgress, repeatingLightSpan, repeatingLightStops } from "../src/js/components/pattern-loop.js";
 
 for (const easing of ["linear", "smooth"]) {
     assert.equal(continuousLoopProgress(0, easing), 0);
@@ -30,6 +30,13 @@ for (const span of [426, 706, 1008]) {
             assert(stops[i].offset >= stops[i - 1].offset && stops[i].offset <= 100);
             assert(stops[i].opacity >= 0 && stops[i].opacity <= 1);
         }
+        const repeatSpan = repeatingLightSpan(span, width);
+        assert(repeatSpan <= span && repeatSpan >= 1, "Repeat tile stays within the scene");
+        assert(repeatSpan <= width * 2, "No long invisible scene-wide interval between highlights");
+        const duration = 14 * (repeatSpan / span);
+        assert(Math.abs(repeatSpan / duration - span / 14) < 1e-8, "Shorter tiles preserve travel speed");
     }
 }
-console.log("PASS: immediate loop motion, nonzero continuous endpoint speed and transparent bounded repeat tiles.");
+console.log(
+    "PASS: immediate continuous loop motion, closely spaced highlights, preserved speed and transparent repeat tiles.",
+);

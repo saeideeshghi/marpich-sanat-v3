@@ -24,11 +24,6 @@
    Hero
    ========================================================= */
 .articles-hero {
-    --articles-backdrop-min-height: 306px;
-    --site-pattern-crop-height: var(
-        --articles-search-backdrop-height,
-        max(var(--articles-backdrop-min-height), var(--articles-heading-bottom, 0px))
-    );
     position: relative;
     z-index: 3;
     min-height: 356px;
@@ -93,16 +88,25 @@
     position: relative;
     z-index: 15;
     margin-top: 4px;
+    padding: 0;
     overflow: hidden;
-    border: 1px solid #e0e6ef;
+    border: 0;
     border-radius: 16px;
     background: #f8faff;
-    box-shadow: var(--shadow-card);
+    /* An inset stroke retains the frame without putting a one-pixel gap
+     * between the orange button and the parent's top/left edges. */
+    box-shadow:
+        var(--shadow-card),
+        inset 0 0 0 1px #e0e6ef;
     color: var(--articles-navy-color);
 }
 
 .articles-search__field-row {
     display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin: 0;
+    padding: 0;
     min-height: 62px;
     border-bottom: 1px solid #e2e7ef;
     background: #fff;
@@ -113,8 +117,12 @@
     display: grid;
     width: 66px;
     flex: 0 0 66px;
+    align-self: stretch;
+    margin: 0;
+    padding: 0;
     place-items: center;
     border: 0;
+    border-radius: 0;
     background: var(--articles-orange-color);
     color: #fff;
     font-size: 22px;
@@ -157,7 +165,7 @@
     min-height: 42px;
     border: 1px solid #c5c4d5;
     border-radius: 4px;
-    background: #f5f8ff;
+    background: transparent;
     color: #273249;
     font: inherit;
     font-size: 14px;
@@ -515,10 +523,6 @@ body[data-page="articles"] .articles-page main :is(p.site-prose, .article-card__
         min-height: 390px;
     }
 
-    .articles-hero {
-        --articles-backdrop-min-height: 315px;
-    }
-
     .articles-hero__heading {
         padding-top: 145px;
     }
@@ -558,10 +562,6 @@ body[data-page="articles"] .articles-page main :is(p.site-prose, .article-card__
 
     .articles-hero {
         min-height: 318px;
-    }
-
-    .articles-hero {
-        --articles-backdrop-min-height: 252px;
     }
 
     .articles-hero__heading {

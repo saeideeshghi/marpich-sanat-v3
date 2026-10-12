@@ -65,13 +65,15 @@ body[data-page="home"] {
     --home-hero-content-margin-top: 105px;
 }
 body[data-page="contact"] {
-    --hero-content-padding-top-desktop: 120px;
+    --hero-content-padding-top-desktop: 156px;
+    --hero-content-padding-top-tablet: 180px;
+    --hero-content-padding-top-mobile: 172px;
 }
 body[data-page="about"] {
-    --hero-content-padding-bottom: 64px;
-    --hero-summary-overlap-desktop: 36px;
-    --hero-summary-overlap-tablet: 36px;
-    --hero-summary-overlap-mobile: 24px;
+    --hero-content-padding-bottom: 56px;
+    --hero-summary-overlap-desktop: 64px;
+    --hero-summary-overlap-tablet: 64px;
+    --hero-summary-overlap-mobile: 32px;
 }
 body[data-page="project-details"] {
     --hero-eyebrow-font-size-desktop: 14px;
@@ -91,7 +93,7 @@ body[data-page="product-details"] {
     --hero-eyebrow-font-size-tablet: 14px;
     --hero-eyebrow-font-size-mobile: 14px;
     --hero-content-padding-top-mobile: 168px;
-    --hero-summary-overlap-desktop: 176px;
+    --hero-summary-overlap-desktop: 210px;
     --hero-summary-overlap-tablet: 176px;
     --hero-summary-overlap-mobile: 140px;
 }
@@ -147,6 +149,6 @@ body[data-page] {
         --section-title-font-size: var(--section-title-font-size-mobile);
     }
     body[data-page="about"] {
-        --hero-content-padding-bottom: 48px;
+        --hero-content-padding-bottom: 40px;
     }
 }
