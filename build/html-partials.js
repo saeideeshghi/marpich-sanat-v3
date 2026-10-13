@@ -6,6 +6,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { resolve, basename } from "node:path";
 import { pages } from "./pages.js";
 import { renderComponent } from "./components.js";
+import { publicContentSecurityPolicy } from "./security-headers.js";
 
 const partialNames = ["header", "mobile-menu", "footer", "auth-modal"];
 
@@ -34,15 +35,24 @@ export function renderPage(html, filename, root) {
 }
 
 export function htmlPartials(root) {
+    let production = false;
     const directory = resolve(root, "src/components");
     const dataDirectory = resolve(root, "src/data");
     return {
         name: "marpich-html-partials",
+        configResolved(config) {
+            production = config.command === "build";
+        },
         transformIndexHtml: {
             order: "pre",
             handler(html, context) {
                 let rendered = renderPage(html, context.filename, root);
                 if (!pages.some((page) => page.file === basename(context.filename))) return rendered;
+                if (production)
+                    rendered = rendered.replace(
+                        /(<meta\b[^>]*\bcharset=["'][^"']+["'][^>]*>)/i,
+                        `$1\n<meta http-equiv="Content-Security-Policy" content="${publicContentSecurityPolicy}" />\n<meta name="referrer" content="strict-origin-when-cross-origin" />`,
+                    );
                 rendered = rendered.replace(/<img\b[^>]*>/g, (tag) => {
                     // Only the main home hero gets an explicit high priority.
                     // Avoid starving critical CSS with dozens of eager photos.
@@ -50,12 +60,8 @@ export function htmlPartials(root) {
                         tag = tag.replace(/\s*\/?>(?=$)/, ' fetchpriority="high" />');
                     // Listing photos below the hero need not compete with the
                     // initial CSS/font download. Preserve explicit CMS choices.
-                    const listing =
-                        /\b(?:site-card__image|product-card__image|article-card__image|about-expertise-card__image|industry-feature__image)\b/.test(
-                            tag,
-                        );
-                    if (listing && !/\b(?:loading|data-product-image)=?/.test(tag))
-                        tag = tag.replace(/\s*\/?>(?=$)/, ' loading="lazy" />');
+                    const critical = /\bfetchpriority=["']high["']|\bdata-product-image\b/.test(tag);
+                    if (!critical && !/\bloading=/.test(tag)) tag = tag.replace(/\s*\/?>(?=$)/, ' loading="lazy" />');
                     if (!/\bdecoding=/.test(tag)) tag = tag.replace(/\s*\/?>(?=$)/, ' decoding="async" />');
                     return tag;
                 });

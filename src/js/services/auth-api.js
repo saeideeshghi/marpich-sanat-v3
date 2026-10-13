@@ -2,6 +2,8 @@
  * Preview is development-only. Production needs VITE_AUTH_MODE=api and server endpoints.
  * See README.md for the request/response contract.
  */
+import { isAuthToken, retryAfterSeconds } from "./auth-response.js";
+
 export const isAuthPreview = import.meta.env.DEV && import.meta.env.VITE_AUTH_MODE !== "api";
 const apiEnabled = import.meta.env.MODE === "backend" || import.meta.env.VITE_AUTH_MODE === "api";
 const baseURL = (import.meta.env.VITE_AUTH_API_BASE || "/api/auth").replace(/\/$/, "");
@@ -57,20 +59,25 @@ async function request(action, payload, signal) {
     }
     const data = await response.json().catch(() => null);
     if (!response.ok || data?.ok === false) {
-        const retryAfter = Math.max(0, Number(response.headers.get("Retry-After")) || 60);
+        const retryAfter = retryAfterSeconds(response.headers.get("Retry-After"));
         if (response.status === 429)
             throw new AuthError("تعداد تلاش‌ها زیاد است؛ کمی بعد دوباره امتحان کنید.", retryAfter);
         if (response.status >= 500) throw new AuthError("سرویس موقتاً در دسترس نیست؛ دوباره تلاش کنید.");
-        throw new AuthError(data?.message || "اطلاعات واردشده صحیح نیست یا درخواست منقضی شده است.");
+        throw new AuthError(
+            typeof data?.message === "string" && data.message.trim()
+                ? data.message.slice(0, 300)
+                : "اطلاعات واردشده صحیح نیست یا درخواست منقضی شده است.",
+        );
     }
-    if (!data || data.ok !== true) throw new AuthError("پاسخ سرویس قابل تأیید نیست؛ دوباره تلاش کنید.");
-    if (["request-code", "register"].includes(action) && !data.challengeId) {
+    if (!data || Array.isArray(data) || data.ok !== true)
+        throw new AuthError("پاسخ سرویس قابل تأیید نیست؛ دوباره تلاش کنید.");
+    if (["request-code", "register"].includes(action) && !isAuthToken(data.challengeId)) {
         throw new AuthError("کد تأیید صادر نشد؛ دوباره تلاش کنید.");
     }
-    if (action === "verify-code" && payload.purpose === "reset" && !data.resetToken) {
+    if (action === "verify-code" && payload.purpose === "reset" && !isAuthToken(data.resetToken)) {
         throw new AuthError("تأیید بازیابی انجام نشد؛ دوباره کد دریافت کنید.");
     }
-    return data;
+    return { ...data, retryAfter: retryAfterSeconds(data.retryAfter) };
 }
 
 export const authAPI = {

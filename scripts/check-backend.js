@@ -11,6 +11,12 @@ for (const page of pages) {
     const entry = manifest[page.file];
     assert(entry, `Missing ${page.file} manifest entry`);
     const html = readFileSync(resolve(root, page.file), "utf8");
+    for (const [, srcset] of html.matchAll(/\bsrcset="([^"]+)"/g))
+        for (const candidate of srcset.split(",")) {
+            const url = candidate.trim().split(/\s+/)[0];
+            if (url.startsWith("/assets/"))
+                assert(existsSync(resolve(root, url.slice(1))), `${page.file}: missing responsive image ${url}`);
+        }
     assert(!html.includes("@include") && !html.includes("/src/"), `${page.file}: unresolved source`);
     assert(!html.includes('as="font"'), `${page.file}: unexpected font preload`);
     const css = [...html.matchAll(/<link\b[^>]*href="([^"]+)"[^>]*>/g)]

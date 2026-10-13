@@ -9,8 +9,28 @@ import { isValidSvgPath } from "../src/js/utils/svg-path.js";
 import { pages } from "../build/pages.js";
 import { renderPage } from "../build/html-partials.js";
 import { templateCustomizer } from "../build/customizer.js";
+import { htmlPartials } from "../build/html-partials.js";
+import { isAuthToken, retryAfterSeconds } from "../src/js/services/auth-response.js";
 
 const root = resolve(import.meta.dirname, "..");
+for (const value of [undefined, null, {}, [], Infinity, NaN, -1, "invalid"])
+    assert.equal(retryAfterSeconds(value), 60, "Malformed cooldowns must not break the countdown");
+assert.equal(retryAfterSeconds("120"), 120);
+assert.equal(retryAfterSeconds(0), 0);
+assert.equal(retryAfterSeconds(1e9), 86400, "Countdown remains bounded");
+const now = Date.parse("2026-10-12T12:00:00Z");
+assert.equal(retryAfterSeconds("Mon, 12 Oct 2026 12:02:00 GMT", now), 120);
+assert.equal(retryAfterSeconds("Mon, 12 Oct 2026 11:59:00 GMT", now), 0);
+for (const value of [null, {}, [], 123, "", "  ", "a".repeat(4097)]) assert(!isAuthToken(value));
+assert(isAuthToken("opaque-server-token"));
+const productionHtml = htmlPartials(root);
+productionHtml.configResolved({ command: "build" });
+const protectedHtml = productionHtml.transformIndexHtml.handler(readFileSync(resolve(root, "index.html"), "utf8"), {
+    filename: resolve(root, "index.html"),
+});
+assert(protectedHtml.includes('http-equiv="Content-Security-Policy"'));
+assert(!protectedHtml.includes("frame-ancestors"), "Embedding protection requires HTTP headers, not a meta policy");
+assert(protectedHtml.indexOf('http-equiv="Content-Security-Policy"') < protectedHtml.indexOf('rel="stylesheet"'));
 for (const url of [
     "javascript:alert(1)",
     "data:text/html,<script>",
@@ -57,12 +77,19 @@ for (const page of pages) {
 const auth = readFileSync(resolve(root, "src/js/services/auth-api.js"), "utf8");
 assert(!/localStorage|sessionStorage/.test(auth), "Auth credentials must not enter browser storage");
 // Look for actual key material, printing only filenames on failure.
-for (const entry of readdirSync(root, { withFileTypes: true })) {
-    if (!entry.isFile() || !/\.(?:html|js|json|md)$/.test(entry.name)) continue;
-    const content = readFileSync(resolve(root, entry.name), "utf8");
+const sourceFiles = readdirSync(root, { withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) => entry.name);
+for (const directory of ["src", "build", "scripts", "docs", ".github"])
+    sourceFiles.push(
+        ...readdirSync(resolve(root, directory), { recursive: true }).map((name) => `${directory}/${name}`),
+    );
+for (const name of sourceFiles) {
+    if (!/\.(?:html|[cm]?js|json|md|css|ya?ml)$/.test(name)) continue;
+    const content = readFileSync(resolve(root, name), "utf8");
     assert(
-        !/-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|AKIA[0-9A-Z]{16}/.test(content),
-        `Key material in ${entry.name}`,
+        !/-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{36,}/.test(content),
+        `Key material in ${name}`,
     );
 }
 const fixture = mkdtempSync(resolve(tmpdir(), "marpich-security-"));

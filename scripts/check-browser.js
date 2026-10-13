@@ -233,6 +233,7 @@ try {
     // real submitted contract against a synthetic HTTP response, not a UI flag.
     await navigate("index.html", 1500);
     const authRequests = [];
+    let authResponse = { ok: true, user: { id: "browser-contract-test" } };
     await call("Fetch.enable", { patterns: [{ urlPattern: "*/api/auth/*", requestStage: "Request" }] });
     page.ws.addEventListener("message", (event) => {
         const message = JSON.parse(event.data);
@@ -243,7 +244,7 @@ try {
             requestId,
             responseCode: 200,
             responseHeaders: [{ name: "Content-Type", value: "application/json" }],
-            body: Buffer.from(JSON.stringify({ ok: true, user: { id: "browser-contract-test" } })).toString("base64"),
+            body: Buffer.from(JSON.stringify(authResponse)).toString("base64"),
         }).catch(console.error);
     });
     const login = `(()=>{document.querySelector('[data-auth-open="login"]').click();const f=document.querySelector('[data-auth-form="login"]');f.elements.identifier.value='user@example.com';f.elements.password.value='Example!234567';f.requestSubmit();})()`;
@@ -264,6 +265,46 @@ try {
     );
     assert.equal(JSON.parse(authRequests[0].postData).identifier, "user@example.com");
     report.features.authContract = true;
+    authResponse = { ok: true, challengeId: {}, retryAfter: 60 };
+    await evaluate(
+        "(()=>{document.querySelector('[data-auth-view=\"forgot\"]').click();const f=document.querySelector('[data-auth-form=\"forgot\"]');f.elements.identifier.value='user@example.com';f.requestSubmit()})()",
+    );
+    await waitFor("document.querySelector('[data-auth-modal]').getAttribute('aria-busy')==='false'");
+    assert.equal(await evaluate("document.querySelector('[data-auth-modal]').dataset.view"), "forgot");
+    assert(await evaluate("!document.querySelector('[data-auth-status]').hidden"), "Reject malformed server tokens");
+    authResponse = { ok: true, challengeId: "opaque-server-challenge", retryAfter: "invalid" };
+    await evaluate("document.querySelector('[data-auth-form=\"forgot\"]').requestSubmit()");
+    await waitFor("document.querySelector('[data-auth-modal]').dataset.view==='otp'");
+    assert(
+        await evaluate("!document.querySelector('[data-resend]').textContent.includes('NaN')"),
+        "Malformed server cooldowns do not corrupt the countdown",
+    );
+    report.features.authMalformedResponses = true;
+    await call("Fetch.disable");
+    await navigate("contact.html", 390);
+    const upload = await evaluate(
+        `(()=>{const input=document.querySelector('[data-file-input]'),label=document.querySelector('[data-file-label]');const set=(name)=>{const dt=new DataTransfer();dt.items.add(new File(['test'],name));input.files=dt.files;input.dispatchEvent(new Event('change',{bubbles:true}))};set('unsafe.exe');const rejected=input.files.length===0;set('<img onerror=alert(1)>.pdf');return {rejected,text:label.textContent,markup:label.querySelector('img')!==null}})()`,
+    );
+    assert(upload.rejected);
+    assert.equal(upload.text, "<img onerror=alert(1)>.pdf");
+    assert.equal(upload.markup, false);
+    await evaluate("document.querySelector('[data-menu-open]').click()");
+    assert(await evaluate("document.querySelector('[data-mobile-menu]').getAttribute('aria-hidden')==='false'"));
+    await evaluate("document.querySelector('[data-mobile-menu] [data-auth-open]').click()");
+    assert(
+        await evaluate(
+            "document.querySelector('[data-mobile-menu]').getAttribute('aria-hidden')==='true'&&document.querySelector('[data-auth-modal]').open&&!document.querySelector('[data-auth-modal]').inert",
+        ),
+        "Mobile menu hands focus and background control to the auth modal",
+    );
+    await evaluate("document.querySelector('[data-auth-modal]').close()");
+    await delay(100);
+    assert(
+        await evaluate(
+            "!document.body.classList.contains('auth-open')&&!document.body.classList.contains('menu-open')",
+        ),
+    );
+    report.features.uploadAndMobileModal = true;
     mkdirSync(".cache", { recursive: true });
     writeFileSync(".cache/browser-verification.json", JSON.stringify(report, null, 2) + "\n");
     console.log(

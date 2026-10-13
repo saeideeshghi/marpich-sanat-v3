@@ -15,6 +15,7 @@
     "check": "node scripts/check-project.js && node scripts/check-components.js && node scripts/check-certificate-assets.js && node scripts/check-pattern-motion.js && node scripts/check-handoff.js && node scripts/check-customizer.js && node scripts/check-view-tools.js && node scripts/check-token-editor.js && node scripts/check-platform.js && node scripts/check-publish.js && node scripts/check-github.js",
     "check:assets": "node scripts/check-assets.js",
     "check:security": "node scripts/check-security.js && node scripts/check-svg.js",
+    "check:release": "npm run check && npm run check:security && npm run check:assets && npm run check:performance && npm run format:check",
     "check:performance": "node scripts/check-performance.js",
     "check:pages": "node scripts/check-pages.js",
     "format": "prettier --write .",

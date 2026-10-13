@@ -31,3 +31,10 @@ dist-ssr
 .env
 .env.*
 !.env.example
+.aws/
+.codex/
+.agents/
+*.pem
+*.key
+*.p12
+*.pfx

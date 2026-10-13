@@ -26,6 +26,7 @@ export function publishCommand(
     const commands = new Map([
         ["ci", "npm ci"],
         ["run check", "npm run check"],
+        ["run check:release", "npm run check:release"],
         ["run build:pages", "npm run build:pages"],
     ]);
     const command = commands.get(args.join(" "));
@@ -99,7 +100,7 @@ export function publishGithub({
     run(process.execPath, ["scripts/clean-legacy.js", "--apply"]);
     const validate = () => {
         run("npm", ["ci"]);
-        run("npm", ["run", "check"]);
+        run("npm", ["run", "check:release"]);
         run("npm", ["run", "build:pages"]);
     };
     validate();

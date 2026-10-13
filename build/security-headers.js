@@ -19,3 +19,10 @@ export const backendHeaders = {
         "frame-ancestors 'self'",
     ].join("; "),
 };
+
+// Static hosts can enforce CSP through HTML. Frame embedding protection still
+// requires the response header; frame-ancestors is unsupported in a meta tag.
+export const publicContentSecurityPolicy = backendHeaders["Content-Security-Policy"]
+    .split("; ")
+    .filter((directive) => !directive.startsWith("frame-ancestors "))
+    .join("; ");

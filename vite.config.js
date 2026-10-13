@@ -22,7 +22,7 @@ export default defineConfig(async ({ mode, isPreview }) => {
     // artwork or regenerate editable styles just to start an HTTP server.
     if (isPreview === true) return { base, preview, build: { outDir } };
     const publicDir = preparePublicAssets(root);
-    const { imageMap } = await optimizePublicAssets(root, publicDir);
+    const { imageMap, responsiveMap } = await optimizePublicAssets(root, publicDir);
     return {
         // Backend/local builds stay at /. Pages has a repository path prefix.
         base,
@@ -47,7 +47,7 @@ export default defineConfig(async ({ mode, isPreview }) => {
         publicDir,
         plugins: [
             htmlPartials(root),
-            optimizedImages(imageMap),
+            optimizedImages(imageMap, responsiveMap),
             runtimePatterns(root),
             tailwindcss(),
             publicAssetBase(base),

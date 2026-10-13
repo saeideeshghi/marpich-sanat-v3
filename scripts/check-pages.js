@@ -43,6 +43,11 @@ const files = [...pages.map(({ file }) => file), "tools/customizer.html", "tools
 let stylesheetLinks = 0;
 for (const file of files) {
     const html = readFileSync(builtFile(file), "utf8");
+    for (const [, srcset] of html.matchAll(/\bsrcset="([^"]+)"/g))
+        for (const candidate of srcset.split(",")) {
+            const url = candidate.trim().split(/\s+/)[0];
+            if (url.startsWith(base)) builtFile(deployedPath(url));
+        }
     assert(!html.includes("@include"), `${file}: unbuilt HTML includes`);
     const styles = [...html.matchAll(/<link\b[^>]*>/g)]
         .map(([tag]) => ({ rel: tag.match(/\brel="([^"]+)"/)?.[1], href: tag.match(/\bhref="([^"]+)"/)?.[1] }))

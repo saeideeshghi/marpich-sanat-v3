@@ -19,14 +19,18 @@ export async function optimizePublicAssets(root, publicRoot) {
     const cache = resolve(root, ".cache/asset-encoding-v1");
     mkdirSync(cache, { recursive: true });
     const imageMap = {},
+        responsiveMap = {},
         savings = { original: 0, optimized: 0, fonts: 0, images: 0, embedded: 0 };
-    async function encode(bytes, kind) {
-        const path = resolve(cache, `${digest(bytes)}.${kind}`);
+    async function encode(bytes, kind, width = 0) {
+        const path = resolve(cache, `${digest(bytes)}${width ? `-${width}w-q92` : ""}.${kind}`);
         if (existsSync(path)) return readFileSync(path);
         const output =
             kind === "woff2"
                 ? Buffer.from(await woff2.compress(bytes))
-                : await sharp(bytes, { limitInputPixels: 40000000 }).webp({ lossless: true, effort: 4 }).toBuffer();
+                : await sharp(bytes, { limitInputPixels: 40000000 })
+                      .resize(width ? { width, withoutEnlargement: true } : undefined)
+                      .webp(width ? { quality: 92, alphaQuality: 100, effort: 5 } : { lossless: true, effort: 4 })
+                      .toBuffer();
         writeFileSync(path, output);
         return output;
     }
@@ -49,6 +53,34 @@ export async function optimizePublicAssets(root, publicRoot) {
             writeFileSync(`${path}.webp`, encoded);
             const url = `/${relative(publicRoot, path).replaceAll("\\", "/")}`;
             imageMap[url] = `${url}.webp`;
+            // Responsive photographic copies preserve alpha and the untouched,
+            // full-resolution fallback. Technical product drawings stay lossless.
+            const hero = url === "/assets/images/hero/hero-engineers.png";
+            const photo =
+                /\/(?:expertise\/(?:expertise-\d+|assessment-consulting|engineering-design|advanced-manufacturing|site-project-management|testing-commissioning)|projects\/project-\d+|articles\/article-\d+|about\/why-marpich)\.png$/.test(
+                    url,
+                );
+            if ((hero && metadata.width > 960) || (photo && metadata.width > 480)) {
+                const variants = [];
+                const version = digest(Buffer.from(`${digest(source)}:responsive-q92-v1`)).slice(0, 12);
+                for (const width of (hero ? [960, 1440, 1920] : [480, 960, 1440]).filter(
+                    (width) => width < metadata.width,
+                )) {
+                    const resized = await encode(source, "webp", width);
+                    const variant = `${url}.${version}.${width}w.webp`;
+                    writeFileSync(`${path}.${version}.${width}w.webp`, resized);
+                    variants.push(`${variant} ${width}w`);
+                }
+                if (photo) {
+                    const full = `${url}.${version}.${metadata.width}w.webp`;
+                    writeFileSync(
+                        `${path}.${version}.${metadata.width}w.webp`,
+                        await encode(source, "webp", metadata.width),
+                    );
+                    variants.push(`${full} ${metadata.width}w`);
+                } else variants.push(`${url}.webp ${metadata.width}w`);
+                responsiveMap[url] = variants.join(", ");
+            }
             savings.images++;
             savings.original += source.length;
             savings.optimized += encoded.length;
@@ -72,15 +104,39 @@ export async function optimizePublicAssets(root, publicRoot) {
     const assets = resolve(publicRoot, "assets");
     mkdirSync(assets, { recursive: true });
     writeFileSync(resolve(assets, "image-manifest.json"), JSON.stringify(imageMap, null, 2) + "\n");
-    return { imageMap, savings };
+    return { imageMap, responsiveMap, savings };
 }
 
-export function optimizedImages(imageMap) {
+export function optimizedImages(imageMap, responsiveMap = {}) {
     return {
         name: "marpich-optimized-images",
         transformIndexHtml: {
             order: "pre",
             handler(html) {
+                html = html.replace(/<img\b[^>]*>/g, (tag) => {
+                    const url = tag.match(/\bsrc=(['"])(.*?)\1/)?.[2];
+                    if (!responsiveMap[url] || /\bsrcset=/.test(tag)) return tag;
+                    const hero = /\bhero-image\b/.test(tag);
+                    const why = url === "/assets/images/about/why-marpich.png";
+                    const service = /\bexpertise-page__media-image\b/.test(tag);
+                    // Full-width summaries may reuse a listing photograph.
+                    // Only substitute sources when its rendered role is known.
+                    if (
+                        !hero &&
+                        !why &&
+                        !service &&
+                        !/\b(?:site-card__image|article-card__image)\b|\/articles\/article-/.test(tag)
+                    )
+                        return tag;
+                    const sizes = hero
+                        ? "(max-width: 1179px) 960px, (max-width: 1599px) 65vw, 1100px"
+                        : why
+                          ? "(max-width: 1179px) 100vw, 700px"
+                          : service
+                            ? "(max-width: 1179px) 100vw, 1320px"
+                            : "(max-width: 639px) calc(100vw - 32px), (max-width: 1179px) 50vw, 440px";
+                    return tag.replace(/\s*\/?>(?=$)/, ` srcset="${responsiveMap[url]}" sizes="${sizes}" />`);
+                });
                 return html.replace(/\b(src|poster)=(['"])(.*?)\2/g, (tag, attr, quote, url) =>
                     imageMap[url] ? `${attr}=${quote}${imageMap[url]}${quote}` : tag,
                 );

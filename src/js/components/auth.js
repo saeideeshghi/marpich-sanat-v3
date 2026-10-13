@@ -4,6 +4,7 @@
  * auth:success is a UI signal, not proof of authorization for server resources.
  */
 import { authAPI, isAuthPreview } from "../services/auth-api.js";
+import { retryAfterSeconds } from "../services/auth-response.js";
 
 const normalizeDigits = (value) => value.replace(/[۰-۹٠-٩]/g, (digit) => String(digit.charCodeAt(0) % 16));
 const normalizeIdentity = (value) => {
@@ -146,7 +147,7 @@ export function initAuth() {
 
     function startTimer(seconds = 60) {
         clearInterval(timer);
-        deadline = Date.now() + Math.max(1, Number(seconds) || 60) * 1000;
+        deadline = Date.now() + Math.max(1, retryAfterSeconds(seconds)) * 1000;
         updateTimer();
         timer = setInterval(updateTimer, 1000);
     }

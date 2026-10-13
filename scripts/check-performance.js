@@ -5,7 +5,7 @@ import { resolve } from "node:path";
 import sharp from "sharp";
 import { compilePatternModule } from "../build/pattern-runtime.js";
 import { normalizePattern } from "../src/js/customizer/pattern-model.js";
-import { optimizePublicAssets } from "../build/optimized-assets.js";
+import { optimizePublicAssets, optimizedImages } from "../build/optimized-assets.js";
 import { compositorFrames } from "../src/js/components/product-category-motion.js";
 
 const root = resolve(import.meta.dirname, "..");
@@ -75,8 +75,37 @@ try {
         "Lossless visible RGBA pixels, including transparency",
     );
     assert.deepEqual(readFileSync(original), png, "Owner's original is untouched");
+    const hero = resolve(publicRoot, "assets/images/hero/hero-engineers.png");
+    mkdirSync(resolve(hero, ".."), { recursive: true });
+    const heroSource = await sharp(png).resize(2400, 2000).png({ compressionLevel: 0 }).toBuffer();
+    writeFileSync(hero, heroSource);
+    const responsive = await optimizePublicAssets(fixture, publicRoot);
+    const sources = responsive.responsiveMap["/assets/images/hero/hero-engineers.png"];
+    assert(sources.includes("960w") && sources.includes("1440w") && sources.includes("1920w"));
+    for (const width of [960, 1440, 1920]) {
+        const url = sources
+            .split(", ")
+            .find((candidate) => candidate.endsWith(` ${width}w`))
+            .split(/\s+/)[0];
+        const variant = readFileSync(resolve(publicRoot, url.slice(1)));
+        assert.equal((await sharp(variant).metadata()).width, width);
+        const expectedAlpha = await sharp(heroSource).resize({ width }).extractChannel("alpha").raw().toBuffer();
+        const actualAlpha = await sharp(variant).extractChannel("alpha").raw().toBuffer();
+        assert.deepEqual(actualAlpha, expectedAlpha, "Responsive photos preserve resized alpha exactly");
+        assert(variant.length < heroSource.length / 10, "Photographic delivery is substantially smaller");
+    }
+    assert.deepEqual(readFileSync(hero), heroSource, "Responsive encoding does not change the original");
+    const plugin = optimizedImages(responsive.imageMap, responsive.responsiveMap);
+    const markup = '<img src="/assets/images/hero/hero-engineers.png" class="hero-image" fetchpriority="high" />';
+    assert(plugin.transformIndexHtml.handler(markup).includes('srcset="'));
+    assert(
+        !plugin.transformIndexHtml
+            .handler(markup.replace('class="hero-image"', 'class="cms-summary"'))
+            .includes('srcset="'),
+    );
     const second = await optimizePublicAssets(fixture, publicRoot);
-    assert.deepEqual(second.imageMap, first.imageMap, "Repeat builds produce the same map");
+    assert.deepEqual(second.imageMap, responsive.imageMap, "Repeat builds produce the same map");
+    assert.deepEqual(second.responsiveMap, responsive.responsiveMap);
     assert.deepEqual(readFileSync(`${original}.webp`), derived);
 } finally {
     rmSync(fixture, { recursive: true, force: true });
